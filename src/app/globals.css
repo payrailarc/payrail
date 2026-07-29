@@ -2,20 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    scroll-behavior: smooth;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+.arc-grid {
+  background-image:
+    radial-gradient(circle at 20% -10%, rgba(95, 191, 255, 0.22), transparent 55%),
+    radial-gradient(circle at 85% 0%, rgba(172, 198, 233, 0.35), transparent 50%);
 }

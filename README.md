@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# payrain
 
-## Getting Started
+USDC payouts on [Arc](https://docs.arc.io) — turn a CSV of recipients into a single settlement
+transaction, with maker/checker approval enforced on-chain.
 
-First, run the development server:
+- **Landing page** — `/`
+- **Payout console** — `/app` (wallet connect, CSV validation, submit → approve → execute)
+- **Contracts** — `contracts/` (Foundry)
+
+## Network
+
+Arc is **testnet only** today. `arc` (chain id 5042) is registered but ships no public RPC, so the app
+targets **Arc Testnet**:
+
+| Field | Value |
+| --- | --- |
+| Chain id | `5042002` (`0x4CEF52`) |
+| RPC | `https://rpc.testnet.arc.network` |
+| Explorer | https://testnet.arcscan.app |
+| Faucet | https://faucet.circle.com |
+| USDC (ERC-20 view) | `0x3600000000000000000000000000000000000000`, 6 decimals |
+| EURC | `0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a`, 6 decimals |
+| `PayoutDistributor` | [`0xaddb32a0bc4b0ca36b56927bda0b0638a21abcd3`](https://testnet.arcscan.app/address/0xaddb32a0bc4b0ca36b56927bda0b0638a21abcd3) |
+
+USDC is the native gas token. The native view has 18 decimals and is used only for gas and
+`msg.value`; the ERC-20 view has 6 decimals and is used for every balance, transfer and display in
+this app. They are the same pool of funds and are never summed. Setting
+`NEXT_PUBLIC_ARC_MAINNET_RPC_URL` switches the same build to mainnet once an endpoint exists.
+
+## Web app
 
 ```bash
+npm install
+cp .env.example .env.local   # set NEXT_PUBLIC_PAYOUT_DISTRIBUTOR after deploying
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`npm run lint` and `npm run build` must pass before shipping.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Contracts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`PayoutDistributor` never custodies funds: the treasury wallet keeps its USDC and grants the
+contract an ERC-20 allowance.
 
-## Learn More
+Batch lifecycle:
 
-To learn more about Next.js, take a look at the following resources:
+1. `submitBatch(batchId, token, total, recipientCount, payloadHash)` — `OPERATOR_ROLE`
+2. `approveBatch(batchId)` — `APPROVER_ROLE`, and never the submitter
+3. `executeBatch(batchId, recipients, amounts)` — payload is re-hashed and must match the commitment
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+`batchId` is single-use, so a retry can never double-pay. Roles: `OPERATOR_ROLE`, `APPROVER_ROLE`,
+`PAUSER_ROLE`, plus `DEFAULT_ADMIN_ROLE` for treasury changes.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+cd contracts
+forge test
+PAYOUT_ADMIN=0x... PAYOUT_TREASURY=0x... \
+  forge script script/Deploy.s.sol:Deploy --rpc-url https://rpc.testnet.arc.network --broadcast
+```
 
-## Deploy on Vercel
+A full lifecycle (submit → approve → execute, 2 recipients) ran against the deployed testnet
+instance in tx
+[`0xbd6d53a5c83fa05186c1d4d79d89251919addab85a170203f37635a9f5a721fe`](https://testnet.arcscan.app/tx/0xbd6d53a5c83fa05186c1d4d79d89251919addab85a170203f37635a9f5a721fe).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Never pass a private key as a CLI flag outside local testing — import a keystore with
+`cast wallet import` and use `--account`.
