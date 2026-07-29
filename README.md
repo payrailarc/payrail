@@ -53,6 +53,8 @@ Batch lifecycle:
 
 ```bash
 cd contracts
+git clone --depth 1 --branch v5.1.0 https://github.com/OpenZeppelin/openzeppelin-contracts lib/openzeppelin-contracts
+git clone --depth 1 https://github.com/foundry-rs/forge-std lib/forge-std
 forge test
 PAYOUT_ADMIN=0x... PAYOUT_TREASURY=0x... \
   forge script script/Deploy.s.sol:Deploy --rpc-url https://rpc.testnet.arc.network --broadcast
