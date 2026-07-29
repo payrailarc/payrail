@@ -46,3 +46,4 @@ contracts/cache/
 contracts/broadcast/
 .env.local
 .env
+contracts/lib/
