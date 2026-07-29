@@ -24,7 +24,7 @@ export function Logo({ tone = "light" }: LogoProps) {
       <span
         className={`text-xl tracking-[0.08em] ${tone === "dark" ? "text-white" : "text-navy"}`}
       >
-        pay<span className="font-semibold text-sky">rain</span>
+        pay<span className="font-semibold text-sky">rail</span>
       </span>
     </span>
   );

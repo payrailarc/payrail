@@ -1,4 +1,4 @@
-# payrain
+# payrail
 
 USDC payouts on [Arc](https://docs.arc.io) — turn a CSV of recipients into a single settlement
 transaction, with maker/checker approval enforced on-chain.

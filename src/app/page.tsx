@@ -5,7 +5,7 @@ import { FAUCET_URL, USE_MAINNET, activeChain } from "@/lib/chain";
 const features = [
   {
     title: "One batch, one transaction",
-    body: "Upload a CSV of thousands of recipients. payrain commits the payload on-chain, then settles it in a single transaction against your treasury allowance.",
+    body: "Upload a CSV of thousands of recipients. payrail commits the payload on-chain, then settles it in a single transaction against your treasury allowance.",
   },
   {
     title: "Maker / checker approval",
@@ -30,8 +30,8 @@ const features = [
 ];
 
 const steps = [
-  { step: "01", title: "Fund treasury", body: "Hold USDC in your own wallet or Safe, and approve payrain as a spender." },
-  { step: "02", title: "Upload batch", body: "Drop a CSV of address, amount, reference. payrain validates and hashes it." },
+  { step: "01", title: "Fund treasury", body: "Hold USDC in your own wallet or Safe, and approve payrail as a spender." },
+  { step: "02", title: "Upload batch", body: "Drop a CSV of address, amount, reference. payrail validates and hashes it." },
   { step: "03", title: "Approve", body: "A second signer approves the batch on-chain." },
   { step: "04", title: "Settle", body: "Execute once. Every recipient is paid in the same transaction." },
 ];
@@ -68,7 +68,7 @@ export default function Home() {
               <span className="block text-arcblue">settled in one transaction.</span>
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-navy/70">
-              payrain turns a spreadsheet into a single USDC settlement on Arc — with on-chain
+              payrail turns a spreadsheet into a single USDC settlement on Arc — with on-chain
               approval controls, predictable fees and records your finance team can reconcile.
             </p>
             <div className="mt-9 flex flex-wrap items-center gap-4">
@@ -177,7 +177,7 @@ export default function Home() {
           <div>
             <h2 className="text-3xl tracking-tight">Network</h2>
             <p className="mt-4 text-sm leading-relaxed text-navy/65">
-              payrain runs on <span className="text-navy">{activeChain.name}</span>. Arc is Circle&apos;s
+              payrail runs on <span className="text-navy">{activeChain.name}</span>. Arc is Circle&apos;s
               layer 1 where USDC is the native gas token. Arc mainnet is not open to the public yet, so
               the app targets testnet and reads its chain configuration from the environment — the same
               build points at mainnet once an RPC endpoint is available.

@@ -29,7 +29,7 @@ const SAMPLE_CSV = `address,amount,reference
 type Step = { title: string; hint: string };
 
 const STEPS: Step[] = [
-  { title: "Allowance", hint: "payrain never holds your funds — it spends an allowance from your wallet." },
+  { title: "Allowance", hint: "payrail never holds your funds — it spends an allowance from your wallet." },
   { title: "Batch", hint: "Paste address, amount, reference rows. Validation happens before anything is signed." },
   { title: "Settle", hint: "Submit, have a second signer approve, then execute in one transaction." },
 ];
