@@ -21,6 +21,7 @@ export const metadata: Metadata = {
 const sections = [
   { id: "overview", label: "Overview" },
   { id: "quickstart", label: "Quickstart" },
+  { id: "funding", label: "Funding the treasury" },
   { id: "csv", label: "CSV format" },
   { id: "lifecycle", label: "Batch lifecycle" },
   { id: "roles", label: "Roles" },
@@ -87,6 +88,30 @@ export default function DocsPage() {
             <li>Submit the batch, approve it from a second signer, then execute it.</li>
             <li>Export the reconciliation CSV for your ledger.</li>
           </ol>
+        </Section>
+
+        <Section id="funding" title="Funding the treasury">
+          <p>
+            Batches are paid out of the treasury balance on {activeChain.name}, so USDC has to be on
+            Arc before a batch can execute. The{" "}
+            <Link href="/bridge" className="text-arcblue underline">
+              bridge page
+            </Link>{" "}
+            walks through Circle Gateway, which moves native USDC rather than minting a wrapped
+            asset:
+          </p>
+          <ol className="ml-4 list-decimal space-y-2">
+            <li>approve Circle&apos;s Gateway wallet on the source chain,</li>
+            <li>deposit into your own Gateway balance — the deposit stays yours,</li>
+            <li>sign an EIP-712 burn intent naming the Arc recipient,</li>
+            <li>submit the returned attestation to the Gateway minter on Arc.</li>
+          </ol>
+          <p>
+            The fee is the source chain&apos;s gas fee plus 0.5 basis points of the amount, taken from
+            the Gateway balance, so the console deposits amount plus fee. Circle lists which chains
+            are active per network; Arc is domain 26 and is currently listed on testnet only, and the
+            bridge page says so rather than letting you sign an intent that would be refused.
+          </p>
         </Section>
 
         <Section id="csv" title="CSV format">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { maxUint256 } from "viem";
 import type { Address } from "viem";
 import {
@@ -38,6 +39,7 @@ import { formatToken, shortenAddress } from "@/lib/format";
 import { useTrackedBatches } from "@/lib/batchStore";
 import { BatchHistory } from "@/components/BatchHistory";
 import { AdminPanel } from "@/components/AdminPanel";
+import { DeployDistributor } from "@/components/DeployDistributor";
 import { UploadIcon } from "@/components/icons";
 
 const SAMPLE_CSV = `address,amount,reference
@@ -79,6 +81,7 @@ export function PayoutConsole() {
     address: configured ? (distributor as Address) : undefined,
     abi: payoutDistributorAbi,
     functionName: "treasury",
+    chainId: activeChain.id,
     query: { enabled: configured },
   });
 
@@ -88,6 +91,7 @@ export function PayoutConsole() {
     abi: erc20Abi,
     functionName: "balanceOf",
     args: treasury ? [treasury] : undefined,
+    chainId: activeChain.id,
     query: { enabled: Boolean(treasury) },
   });
 
@@ -96,6 +100,7 @@ export function PayoutConsole() {
     abi: erc20Abi,
     functionName: "allowance",
     args: treasury && configured ? [treasury, distributor as Address] : undefined,
+    chainId: activeChain.id,
     query: { enabled: Boolean(treasury) && configured },
   });
 
@@ -103,6 +108,7 @@ export function PayoutConsole() {
     address: configured ? (distributor as Address) : undefined,
     abi: payoutDistributorAbi,
     functionName: "paused",
+    chainId: activeChain.id,
     query: { enabled: configured },
   });
 
@@ -111,6 +117,7 @@ export function PayoutConsole() {
     abi: payoutDistributorAbi,
     functionName: "hasRole",
     args: address ? [OPERATOR_ROLE, address] : undefined,
+    chainId: activeChain.id,
     query: { enabled: configured && Boolean(address) },
   });
 
@@ -119,6 +126,7 @@ export function PayoutConsole() {
     abi: payoutDistributorAbi,
     functionName: "hasRole",
     args: address ? [APPROVER_ROLE, address] : undefined,
+    chainId: activeChain.id,
     query: { enabled: configured && Boolean(address) },
   });
 
@@ -127,6 +135,7 @@ export function PayoutConsole() {
     abi: payoutDistributorAbi,
     functionName: "getBatch",
     args: batchId ? [batchId] : undefined,
+    chainId: activeChain.id,
     query: { enabled: configured && Boolean(batchId) },
   });
 
@@ -292,11 +301,9 @@ export function PayoutConsole() {
   return (
     <div className="mx-auto max-w-6xl px-5 py-8 sm:px-6 sm:py-10">
       {!configured && (
-        <Callout tone="warn" title="No distributor configured">
-          Deploy <code className="font-mono">PayoutDistributor</code> to {activeChain.name} and set{" "}
-          <code className="font-mono">NEXT_PUBLIC_PAYOUT_DISTRIBUTOR</code>. The batch builder below
-          still validates and hashes payloads without it.
-        </Callout>
+        <div className="mb-6">
+          <DeployDistributor />
+        </div>
       )}
       {wrongNetwork && (
         <Callout tone="warn" title="Wrong network">
@@ -559,6 +566,10 @@ export function PayoutConsole() {
             {!isConnected ? (
               <p className="mt-6 rounded-xl bg-ice/70 p-4 text-xs text-navy/70">
                 Connect a wallet on {activeChain.name} to run a batch. Need funds?{" "}
+                <Link href="/bridge" className="text-arcblue underline">
+                  Bridge USDC
+                </Link>{" "}
+                or use the{" "}
                 <a href={FAUCET_URL} target="_blank" rel="noreferrer" className="text-arcblue underline">
                   Circle faucet
                 </a>
@@ -597,6 +608,15 @@ export function PayoutConsole() {
                 </button>
                 {!isTreasury && (
                   <Hint>Only the treasury wallet can change the distributor allowance.</Hint>
+                )}
+                {!balanceCovers && (
+                  <Hint>
+                    Treasury balance is below the batch total.{" "}
+                    <Link href="/bridge" className="text-arcblue underline">
+                      Bridge USDC to {activeChain.name}
+                    </Link>
+                    .
+                  </Hint>
                 )}
                 {isTreasury && allowanceCovers && (
                   <Hint>Allowance already covers this batch total.</Hint>

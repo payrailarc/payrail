@@ -4,7 +4,7 @@ import type { Address } from "viem";
 import { useReadContracts } from "wagmi";
 import { BATCH_STATUS, payoutDistributorAbi } from "@/lib/abi";
 import { batchIdFromLabel } from "@/lib/batch";
-import { PAYOUT_DISTRIBUTOR_ADDRESS, TOKENS, explorerAddress } from "@/lib/chain";
+import { PAYOUT_DISTRIBUTOR_ADDRESS, TOKENS, activeChain, explorerAddress } from "@/lib/chain";
 import { useTrackedBatches, type TrackedBatch } from "@/lib/batchStore";
 import { formatToken, shortenAddress } from "@/lib/format";
 
@@ -27,6 +27,7 @@ export function BatchHistory({ onSelect }: { onSelect: (batch: TrackedBatch) => 
       abi: payoutDistributorAbi,
       functionName: "getBatch" as const,
       args: [batchIdFromLabel(entry.label)] as const,
+      chainId: activeChain.id,
     })),
     query: { enabled: configured && batches.length > 0, refetchInterval: 20_000 },
   });

@@ -14,6 +14,9 @@ export default function AppPage() {
             <Link href="/" aria-label="payrail home">
               <Logo />
             </Link>
+            <Link href="/bridge" className="hidden text-sm text-navy/60 transition hover:text-navy sm:block">
+              Bridge
+            </Link>
             <Link href="/docs" className="hidden text-sm text-navy/60 transition hover:text-navy sm:block">
               Docs
             </Link>

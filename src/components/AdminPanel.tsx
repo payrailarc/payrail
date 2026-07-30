@@ -31,6 +31,7 @@ export function AdminPanel({ distributor, paused, treasury, onChanged }: Props) 
     abi: payoutDistributorAbi,
     functionName: "hasRole",
     args: address ? [DEFAULT_ADMIN_ROLE, address] : undefined,
+    chainId: activeChain.id,
     query: { enabled: Boolean(address) },
   });
 
@@ -39,6 +40,7 @@ export function AdminPanel({ distributor, paused, treasury, onChanged }: Props) 
     abi: payoutDistributorAbi,
     functionName: "hasRole",
     args: address ? [PAUSER_ROLE, address] : undefined,
+    chainId: activeChain.id,
     query: { enabled: Boolean(address) },
   });
 
