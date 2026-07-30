@@ -1,3 +1,5 @@
+import { keccak256, stringToHex } from "viem";
+
 export const payoutDistributorAbi = [
   {
     type: "function",
@@ -57,6 +59,30 @@ export const payoutDistributorAbi = [
   },
   {
     type: "function",
+    name: "paused",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ name: "", type: "bool" }],
+  },
+  {
+    type: "function",
+    name: "hasRole",
+    stateMutability: "view",
+    inputs: [
+      { name: "role", type: "bytes32" },
+      { name: "account", type: "address" },
+    ],
+    outputs: [{ name: "", type: "bool" }],
+  },
+  {
+    type: "function",
+    name: "MAX_RECIPIENTS_PER_CALL",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    type: "function",
     name: "getBatch",
     stateMutability: "view",
     inputs: [{ name: "batchId", type: "bytes32" }],
@@ -73,6 +99,53 @@ export const payoutDistributorAbi = [
           { name: "approvedBy", type: "address" },
         ],
       },
+    ],
+  },
+  {
+    type: "event",
+    name: "BatchSubmitted",
+    inputs: [
+      { name: "batchId", type: "bytes32", indexed: true },
+      { name: "token", type: "address", indexed: true },
+      { name: "total", type: "uint256", indexed: false },
+      { name: "recipientCount", type: "uint32", indexed: false },
+      { name: "payloadHash", type: "bytes32", indexed: false },
+      { name: "submittedBy", type: "address", indexed: true },
+    ],
+  },
+  {
+    type: "event",
+    name: "BatchApproved",
+    inputs: [
+      { name: "batchId", type: "bytes32", indexed: true },
+      { name: "approvedBy", type: "address", indexed: true },
+    ],
+  },
+  {
+    type: "event",
+    name: "BatchCancelled",
+    inputs: [
+      { name: "batchId", type: "bytes32", indexed: true },
+      { name: "cancelledBy", type: "address", indexed: true },
+    ],
+  },
+  {
+    type: "event",
+    name: "BatchExecuted",
+    inputs: [
+      { name: "batchId", type: "bytes32", indexed: true },
+      { name: "token", type: "address", indexed: true },
+      { name: "total", type: "uint256", indexed: false },
+      { name: "recipientCount", type: "uint32", indexed: false },
+    ],
+  },
+  {
+    type: "event",
+    name: "PayoutSent",
+    inputs: [
+      { name: "batchId", type: "bytes32", indexed: true },
+      { name: "recipient", type: "address", indexed: true },
+      { name: "amount", type: "uint256", indexed: false },
     ],
   },
 ] as const;
@@ -115,3 +188,10 @@ export const erc20Abi = [
 ] as const;
 
 export const BATCH_STATUS = ["None", "Pending", "Approved", "Executed", "Cancelled"] as const;
+
+export type BatchStatusLabel = (typeof BATCH_STATUS)[number];
+
+/** Role ids as declared in the contract: `keccak256("OPERATOR_ROLE")` etc. */
+export const OPERATOR_ROLE = keccak256(stringToHex("OPERATOR_ROLE"));
+export const APPROVER_ROLE = keccak256(stringToHex("APPROVER_ROLE"));
+export const PAUSER_ROLE = keccak256(stringToHex("PAUSER_ROLE"));

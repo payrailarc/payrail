@@ -4,8 +4,12 @@ USDC payouts on [Arc](https://docs.arc.io) — turn a CSV of recipients into a s
 transaction, with maker/checker approval enforced on-chain.
 
 - **Landing page** — `/`
-- **Payout console** — `/app` (wallet connect, CSV validation, submit → approve → execute)
+- **Payout console** — `/app` (wallet connect, CSV upload/validation, submit → approve → execute,
+  role badges, batch history, reconciliation export)
+- **Docs** — `/docs` (CSV format, lifecycle, roles, contract interface, errors)
+- **Whitepaper** — `/whitepaper` (design, security model, costs, roadmap)
 - **Contracts** — `contracts/` (Foundry)
+- **X** — https://x.com/Payrailarc
 
 ## Network
 

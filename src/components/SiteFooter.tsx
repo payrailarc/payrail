@@ -1,0 +1,87 @@
+import Link from "next/link";
+import { Logo } from "@/components/Logo";
+import { XIcon } from "@/components/icons";
+import { X_HANDLE, X_URL } from "@/lib/site";
+import { EXPLORER_URL, FAUCET_URL, PAYOUT_DISTRIBUTOR_ADDRESS, activeChain } from "@/lib/chain";
+
+const productLinks = [
+  { href: "/app", label: "Payout console" },
+  { href: "/docs", label: "Docs" },
+  { href: "/whitepaper", label: "Whitepaper" },
+];
+
+export function SiteFooter() {
+  const contractUrl = PAYOUT_DISTRIBUTOR_ADDRESS
+    ? `${EXPLORER_URL}/address/${PAYOUT_DISTRIBUTOR_ADDRESS}`
+    : EXPLORER_URL;
+
+  return (
+    <footer className="border-t border-navy/10 bg-navy py-14 text-white/70">
+      <div className="mx-auto grid max-w-6xl gap-10 px-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="space-y-4">
+          <Logo tone="dark" />
+          <p className="text-xs leading-relaxed text-white/50">
+            Batch USDC and EURC payouts on Arc, with maker/checker approval and audit-ready records.
+          </p>
+          <a
+            href={X_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 rounded-full border border-white/15 px-3 py-1.5 text-xs text-white/70 transition hover:border-white/40 hover:text-white"
+          >
+            <XIcon className="h-3.5 w-3.5" />
+            {X_HANDLE}
+          </a>
+        </div>
+
+        <div>
+          <h3 className="text-xs tracking-[0.2em] text-white/40">PRODUCT</h3>
+          <ul className="mt-4 space-y-2 text-sm">
+            {productLinks.map((link) => (
+              <li key={link.href}>
+                <Link href={link.href} className="transition hover:text-white">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <h3 className="text-xs tracking-[0.2em] text-white/40">NETWORK</h3>
+          <ul className="mt-4 space-y-2 text-sm">
+            <li>
+              <a href={EXPLORER_URL} target="_blank" rel="noreferrer" className="transition hover:text-white">
+                {activeChain.name} explorer
+              </a>
+            </li>
+            <li>
+              <a href={contractUrl} target="_blank" rel="noreferrer" className="transition hover:text-white">
+                PayoutDistributor
+              </a>
+            </li>
+            <li>
+              <a href={FAUCET_URL} target="_blank" rel="noreferrer" className="transition hover:text-white">
+                Circle faucet
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 className="text-xs tracking-[0.2em] text-white/40">STATUS</h3>
+          <ul className="mt-4 space-y-2 text-sm text-white/60">
+            <li>Chain · {activeChain.name}</li>
+            <li>Chain id · {activeChain.id}</li>
+            <li>Gas token · USDC</li>
+          </ul>
+        </div>
+      </div>
+
+      <div className="mx-auto mt-12 flex max-w-6xl flex-col gap-3 px-6 text-xs text-white/40 sm:flex-row sm:items-center sm:justify-between">
+        <p className="tracking-[0.2em]">USDC PAYOUTS ON ARC</p>
+        <p>Testnet software. Not audited — review the contract before moving real funds.</p>
+      </div>
+    </footer>
+  );
+}

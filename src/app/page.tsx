@@ -1,6 +1,8 @@
 import Link from "next/link";
-import { Logo, LogoMark } from "@/components/Logo";
-import { FAUCET_URL, USE_MAINNET, activeChain } from "@/lib/chain";
+import { LogoMark } from "@/components/Logo";
+import { SiteFooter } from "@/components/SiteFooter";
+import { SiteHeader } from "@/components/SiteHeader";
+import { FAUCET_URL, USDC_ADDRESS, USE_MAINNET, activeChain } from "@/lib/chain";
 
 const features = [
   {
@@ -10,6 +12,10 @@ const features = [
   {
     title: "Maker / checker approval",
     body: "The operator who builds a batch can never approve it. Approval is enforced by the contract, not by your process document.",
+  },
+  {
+    title: "Funds never leave your treasury",
+    body: "payrail holds no balance. It spends an ERC-20 allowance from the treasury you control, so a paused or retired distributor cannot trap money.",
   },
   {
     title: "Fees you can quote",
@@ -25,37 +31,46 @@ const features = [
   },
   {
     title: "Audit-ready records",
-    body: "Every payout emits an event with recipient, amount and batch id — export a reconciliation file straight from the explorer or the dashboard.",
+    body: "Every payout emits an event with recipient, amount and batch id. Export a reconciliation CSV straight from the console.",
+  },
+  {
+    title: "Idempotent by design",
+    body: "A batch id can only be executed once. Retrying a failed run can never double-pay a recipient.",
   },
 ];
 
 const steps = [
-  { step: "01", title: "Fund treasury", body: "Hold USDC in your own wallet or Safe, and approve payrail as a spender." },
-  { step: "02", title: "Upload batch", body: "Drop a CSV of address, amount, reference. payrail validates and hashes it." },
-  { step: "03", title: "Approve", body: "A second signer approves the batch on-chain." },
-  { step: "04", title: "Settle", body: "Execute once. Every recipient is paid in the same transaction." },
+  {
+    step: "01",
+    title: "Fund treasury",
+    body: "Hold USDC in your own wallet or Safe, and approve payrail as a spender.",
+  },
+  {
+    step: "02",
+    title: "Upload batch",
+    body: "Drop a CSV of address, amount, reference. payrail validates and hashes it before anything is signed.",
+  },
+  { step: "03", title: "Approve", body: "A second signer approves the committed payload on-chain." },
+  {
+    step: "04",
+    title: "Settle & reconcile",
+    body: "Execute once, then export the payout events as a reconciliation file.",
+  },
+];
+
+const useCases = [
+  { title: "Contractor payroll", body: "Monthly runs for global contractors, priced and paid in USDC." },
+  { title: "Vendor settlement", body: "Net-30 supplier invoices settled in one batch with references intact." },
+  { title: "Affiliate commissions", body: "High-volume, low-value payouts where per-transfer fees usually hurt." },
+  { title: "Marketplace sellers", body: "Scheduled seller disbursements with the payload hash as proof of intent." },
+  { title: "Refunds", body: "Bulk refunds tied to an internal batch id you can search later." },
+  { title: "Treasury sweeps", body: "Move funds to operating wallets under a two-signer control." },
 ];
 
 export default function Home() {
   return (
     <main className="min-h-screen">
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
-        <Logo />
-        <nav className="flex items-center gap-6 text-sm text-navy/70">
-          <Link href="#how" className="hidden hover:text-navy sm:block">
-            How it works
-          </Link>
-          <Link href="#network" className="hidden hover:text-navy sm:block">
-            Network
-          </Link>
-          <Link
-            href="/app"
-            className="rounded-full bg-navy px-5 py-2.5 font-medium text-white transition hover:bg-navy-soft"
-          >
-            Open app
-          </Link>
-        </nav>
-      </header>
+      <SiteHeader />
 
       <section className="arc-grid border-b border-navy/5">
         <div className="mx-auto grid max-w-6xl gap-12 px-6 pb-24 pt-16 lg:grid-cols-2 lg:items-center">
@@ -71,18 +86,24 @@ export default function Home() {
               payrail turns a spreadsheet into a single USDC settlement on Arc — with on-chain
               approval controls, predictable fees and records your finance team can reconcile.
             </p>
-            <div className="mt-9 flex flex-wrap items-center gap-4">
+            <div className="mt-9 flex flex-wrap items-center gap-3">
               <Link
                 href="/app"
                 className="rounded-full bg-navy px-7 py-3.5 text-sm font-medium text-white transition hover:bg-navy-soft"
               >
                 Run a payout batch
               </Link>
+              <Link
+                href="/docs"
+                className="rounded-full border border-navy/15 px-7 py-3.5 text-sm font-medium text-navy transition hover:border-navy/40"
+              >
+                Read the docs
+              </Link>
               <a
                 href={FAUCET_URL}
                 target="_blank"
                 rel="noreferrer"
-                className="rounded-full border border-navy/15 px-7 py-3.5 text-sm font-medium text-navy transition hover:border-navy/40"
+                className="px-2 py-3.5 text-sm text-navy/60 underline-offset-4 transition hover:text-navy hover:underline"
               >
                 Get testnet USDC
               </a>
@@ -147,9 +168,13 @@ export default function Home() {
 
       <section id="how" className="mx-auto max-w-6xl px-6 py-24">
         <h2 className="text-3xl tracking-tight">How a payout run works</h2>
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-navy/60">
+          Four steps, two signers, one settlement transaction. Every step is enforced by the
+          distributor contract rather than by convention.
+        </p>
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {steps.map((item) => (
-            <div key={item.step} className="rounded-2xl border border-navy/10 p-6">
+            <div key={item.step} className="rounded-2xl border border-navy/10 p-6 transition hover:border-arcblue/40">
               <span className="text-xs tracking-[0.2em] text-sky">{item.step}</span>
               <h3 className="mt-4 text-lg">{item.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-navy/65">{item.body}</p>
@@ -161,10 +186,10 @@ export default function Home() {
       <section className="bg-ice/60 py-24">
         <div className="mx-auto max-w-6xl px-6">
           <h2 className="text-3xl tracking-tight">Built for finance operations</h2>
-          <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {features.map((feature) => (
               <div key={feature.title}>
-                <h3 className="text-lg">{feature.title}</h3>
+                <h3 className="text-base">{feature.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-navy/65">{feature.body}</p>
               </div>
             ))}
@@ -172,7 +197,19 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="network" className="mx-auto max-w-6xl px-6 py-24">
+      <section className="mx-auto max-w-6xl px-6 py-24">
+        <h2 className="text-3xl tracking-tight">What teams pay with it</h2>
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {useCases.map((item) => (
+            <div key={item.title} className="rounded-2xl bg-ice/60 p-6">
+              <h3 className="text-base">{item.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-navy/65">{item.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section id="network" className="mx-auto max-w-6xl px-6 pb-24">
         <div className="grid gap-10 rounded-3xl border border-navy/10 p-10 lg:grid-cols-2">
           <div>
             <h2 className="text-3xl tracking-tight">Network</h2>
@@ -182,12 +219,18 @@ export default function Home() {
               the app targets testnet and reads its chain configuration from the environment — the same
               build points at mainnet once an RPC endpoint is available.
             </p>
+            <Link
+              href="/whitepaper"
+              className="mt-6 inline-block text-sm text-arcblue underline-offset-4 hover:underline"
+            >
+              Read the whitepaper →
+            </Link>
           </div>
           <dl className="grid gap-4 text-sm">
             {[
               ["Chain", `${activeChain.name} (${activeChain.id})`],
               ["Gas token", "USDC — 18-decimal native view, 6-decimal ERC-20 view"],
-              ["USDC ERC-20", "0x3600000000000000000000000000000000000000"],
+              ["USDC ERC-20", USDC_ADDRESS],
               ["Finality", "Sub-second, deterministic"],
             ].map(([label, value]) => (
               <div key={label} className="flex flex-col gap-1 border-b border-navy/5 pb-3">
@@ -199,12 +242,24 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="border-t border-navy/10 bg-navy py-12 text-white/70">
-        <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 sm:flex-row sm:items-center sm:justify-between">
-          <Logo tone="dark" />
-          <p className="text-xs tracking-[0.2em] text-white/40">USDC PAYOUTS ON ARC</p>
+      <section className="mx-auto max-w-6xl px-6 pb-24">
+        <div className="flex flex-col items-start justify-between gap-6 rounded-3xl bg-navy p-10 text-white sm:flex-row sm:items-center">
+          <div>
+            <h2 className="text-2xl tracking-tight">Run your first batch in a few minutes</h2>
+            <p className="mt-2 text-sm text-white/60">
+              Connect a wallet on {activeChain.name}, paste a CSV, and settle it end to end.
+            </p>
+          </div>
+          <Link
+            href="/app"
+            className="rounded-full bg-white px-7 py-3.5 text-sm font-medium text-navy transition hover:bg-ice"
+          >
+            Open the console
+          </Link>
         </div>
-      </footer>
+      </section>
+
+      <SiteFooter />
     </main>
   );
 }

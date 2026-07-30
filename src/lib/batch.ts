@@ -1,5 +1,13 @@
 import Papa from "papaparse";
-import { encodeAbiParameters, getAddress, isAddress, keccak256, parseUnits, stringToHex } from "viem";
+import {
+  encodeAbiParameters,
+  formatUnits,
+  getAddress,
+  isAddress,
+  keccak256,
+  parseUnits,
+  stringToHex,
+} from "viem";
 import type { Address, Hex } from "viem";
 
 export type PayoutRow = {
@@ -80,4 +88,45 @@ export function hashPayload(token: Address, rows: PayoutRow[]): Hex {
 
 export function batchIdFromLabel(label: string): Hex {
   return keccak256(stringToHex(label));
+}
+
+export const CSV_TEMPLATE = `address,amount,reference
+0x0000000000000000000000000000000000000000,0.00,INV-0001`;
+
+/** Reconciliation export: one line per recipient plus the batch commitment. */
+export function toReconciliationCsv(params: {
+  label: string;
+  batchId: Hex;
+  payloadHash: Hex;
+  token: { symbol: string; address: Address; decimals: number };
+  rows: PayoutRow[];
+  status: string;
+  txHash?: string;
+}): string {
+  const header = "batch_label,batch_id,payload_hash,status,token,token_address,recipient,amount,reference,tx_hash";
+  const lines = params.rows.map((row) =>
+    [
+      params.label,
+      params.batchId,
+      params.payloadHash,
+      params.status,
+      params.token.symbol,
+      params.token.address,
+      row.recipient,
+      formatUnits(row.amount, params.token.decimals),
+      row.reference.replace(/[",\n]/g, " ").trim(),
+      params.txHash ?? "",
+    ].join(","),
+  );
+  return [header, ...lines].join("\n");
+}
+
+export function downloadTextFile(filename: string, contents: string) {
+  const blob = new Blob([contents], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  anchor.click();
+  URL.revokeObjectURL(url);
 }
