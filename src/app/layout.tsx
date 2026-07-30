@@ -6,7 +6,7 @@ import { X_HANDLE } from "@/lib/site";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://payrailhq.vercel.app";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://pay-rail.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
