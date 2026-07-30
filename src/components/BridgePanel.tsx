@@ -31,10 +31,11 @@ import {
   gatewayFee,
   gatewayMinterAbi,
   gatewayWalletAbi,
-  isArcRouteLive,
+  fetchGatewayDomains,
   requestTransfer,
   requiredGatewayBalance,
 } from "@/lib/gateway";
+import type { GatewayDomain } from "@/lib/gateway";
 import { formatToken, shortenAddress } from "@/lib/format";
 
 type Step = "approve" | "deposit" | "authorize" | "mint";
@@ -76,7 +77,7 @@ export function BridgePanel() {
   const [pending, setPending] = useState<bigint>();
   const [attestation, setAttestation] = useState<{ attestation: Hex; signature: Hex }>();
   const [busy, setBusy] = useState<Step>();
-  const [routeLive, setRouteLive] = useState<boolean>();
+  const [domains, setDomains] = useState<GatewayDomain[]>();
 
   const source = SOURCE_CHAINS.find((entry) => entry.chain.id === sourceId) ?? SOURCE_CHAINS[0];
   const distributor = PAYOUT_DISTRIBUTOR_ADDRESS as Address | "";
@@ -142,9 +143,9 @@ export function BridgePanel() {
   }, [refreshGatewayBalance]);
 
   useEffect(() => {
-    isArcRouteLive()
-      .then(setRouteLive)
-      .catch(() => setRouteLive(undefined));
+    fetchGatewayDomains()
+      .then(setDomains)
+      .catch(() => setDomains(undefined));
   }, []);
 
   useEffect(() => {
@@ -162,7 +163,8 @@ export function BridgePanel() {
   const allowanceCovers =
     allowance !== undefined && required !== undefined && allowance >= required;
   const depositCovers = available !== undefined && required !== undefined && available >= required;
-  const routeBlocked = routeLive === false;
+  const sourceInfo = domains?.find((entry) => entry.domain === source.domain);
+  const routeBlocked = domains !== undefined && !domains.some((entry) => entry.domain === ARC_DOMAIN);
 
   function approve() {
     if (!required) return;
@@ -194,6 +196,10 @@ export function BridgePanel() {
 
   async function authorize() {
     if (!value || !address || !recipientValid) return;
+    if (!sourceInfo) {
+      setFailure(`Circle does not list ${source.chain.name} as an active Gateway chain.`);
+      return;
+    }
     setFailure(undefined);
     setBusy("authorize");
     setStatus("Waiting for your signature");
@@ -203,6 +209,7 @@ export function BridgePanel() {
         depositor: address,
         recipient: recipientValue as Address,
         value,
+        maxBlockHeight: BigInt(sourceInfo.burnIntentExpirationHeight),
       });
       const signature = await signTypedDataAsync({
         domain: BURN_INTENT_DOMAIN,
@@ -241,10 +248,10 @@ export function BridgePanel() {
     <div className="grid gap-8 lg:grid-cols-[1.3fr_1fr]">
       {routeBlocked && (
         <div className="rounded-2xl border border-amber-300 bg-amber-50 p-5 text-sm leading-relaxed text-amber-900 lg:col-span-2">
-          Circle&apos;s Gateway contracts are live on {activeChain.name}, but its API does not list
-          domain {ARC_DOMAIN} as an active route yet, so it will refuse to attest a transfer into{" "}
-          {activeChain.name}. Arc Testnet is listed and works today. Until the mainnet route opens,
-          fund the treasury with a route that already supports Arc.
+          Circle&apos;s Gateway contracts are live on {activeChain.name}, but its API lists only{" "}
+          {domains?.length ?? 0} active mainnet chains and domain {ARC_DOMAIN} is not one of them, so
+          it refuses to attest a transfer into {activeChain.name} — signing here would waste a
+          deposit. Arc Testnet is listed and works today.
         </div>
       )}
       <section className="space-y-6">
@@ -451,6 +458,10 @@ export function BridgePanel() {
           <dl className="mt-4 space-y-3 text-sm">
             <Row label="Source domain" value={String(source.domain)} />
             <Row label="Destination domain" value={String(ARC_DOMAIN)} />
+            <Row
+              label="Arc on Circle's API"
+              value={domains === undefined ? "—" : routeBlocked ? "not listed" : "active"}
+            />
             <Row label="Gateway wallet" value={shortenAddress(GATEWAY_WALLET_ADDRESS)} />
             <Row label="Gateway minter" value={shortenAddress(GATEWAY_MINTER_ADDRESS)} />
             <Row

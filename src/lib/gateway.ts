@@ -197,7 +197,6 @@ export type BurnIntent = {
 };
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000" as Address;
-const MAX_UINT256 = (1n << 256n) - 1n;
 
 export function toBytes32(address: Address): Hex {
   return `0x${address.toLowerCase().replace(/^0x/, "").padStart(64, "0")}` as Hex;
@@ -214,9 +213,11 @@ export function buildBurnIntent(params: {
   depositor: Address;
   recipient: Address;
   value: bigint;
+  /** Latest source-chain height Circle will still burn at, from `/v1/info`. */
+  maxBlockHeight: bigint;
 }): BurnIntent {
   return {
-    maxBlockHeight: MAX_UINT256,
+    maxBlockHeight: params.maxBlockHeight,
     /** Doubling the quoted fee leaves room for a gas-fee change between signing and burning. */
     maxFee: gatewayFee(params.source, params.value) * 2n,
     spec: {
@@ -247,16 +248,19 @@ export function serializeBurnIntent(intent: BurnIntent) {
   };
 }
 
-type GatewayInfo = {
-  domains?: { domain: number; chain: string; network: string }[];
+export type GatewayDomain = {
+  domain: number;
+  chain: string;
+  network: string;
+  processedHeight: string;
+  burnIntentExpirationHeight: string;
 };
 
-/** Circle only accepts transfers for domains it lists as active. */
-export async function isArcRouteLive(): Promise<boolean> {
+export async function fetchGatewayDomains(): Promise<GatewayDomain[]> {
   const res = await fetch(`${GATEWAY_API_BASE}/v1/info`);
   if (!res.ok) throw new Error(await gatewayError(res));
-  const info = (await res.json()) as GatewayInfo;
-  return Boolean(info.domains?.some((entry) => entry.domain === ARC_DOMAIN));
+  const info = (await res.json()) as { domains?: GatewayDomain[] };
+  return info.domains ?? [];
 }
 
 export type GatewayBalance = {
