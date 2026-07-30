@@ -5,6 +5,7 @@ export const X_URL = "https://x.com/Payrailarc";
 export const NAV_LINKS = [
   { href: "/#how", label: "How it works" },
   { href: "/#network", label: "Network" },
+  { href: "/#roadmap", label: "Roadmap" },
   { href: "/docs", label: "Docs" },
   { href: "/whitepaper", label: "Whitepaper" },
 ] as const;

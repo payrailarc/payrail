@@ -3,6 +3,7 @@ import { LogoMark } from "@/components/Logo";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { FAUCET_URL, USDC_ADDRESS, USE_MAINNET, activeChain } from "@/lib/chain";
+import { ROADMAP } from "@/lib/roadmap";
 
 const features = [
   {
@@ -243,6 +244,51 @@ export default function Home() {
               </div>
             ))}
           </dl>
+        </div>
+      </section>
+
+      <section id="roadmap" className="mx-auto max-w-6xl scroll-mt-20 px-5 pb-16 sm:px-6 sm:pb-24">
+        <p className="text-xs tracking-[0.2em] text-sky">ROADMAP</p>
+        <h2 className="mt-3 text-2xl tracking-tight sm:text-3xl">Where payrail is going</h2>
+        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-navy/65">
+          v0.1 is live on {activeChain.name}. Everything after it is sequenced so the settlement
+          contract stays unchanged while the controls around it get stronger.
+        </p>
+        <div className="mt-10 grid gap-4 md:grid-cols-2">
+          {ROADMAP.map((phase) => (
+            <div
+              key={phase.phase}
+              className={`rounded-2xl border p-6 ${
+                phase.status === "Shipped" ? "border-arcblue/30 bg-ice/60" : "border-navy/10 bg-white"
+              }`}
+            >
+              <div className="flex items-center justify-between gap-4">
+                <h3 className="text-base">
+                  <span className="font-mono text-xs text-navy/45">{phase.phase}</span>{" "}
+                  {phase.title}
+                </h3>
+                <span
+                  className={`whitespace-nowrap rounded-full px-3 py-1 text-xs ${
+                    phase.status === "Shipped"
+                      ? "bg-navy text-white"
+                      : phase.status === "In progress"
+                        ? "bg-white text-arcblue ring-1 ring-arcblue/30"
+                        : "bg-ice/70 text-navy/55"
+                  }`}
+                >
+                  {phase.status}
+                </span>
+              </div>
+              <ul className="mt-4 space-y-2 text-sm leading-relaxed text-navy/65">
+                {phase.items.map((item) => (
+                  <li key={item} className="flex gap-2">
+                    <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-sky" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
       </section>
 

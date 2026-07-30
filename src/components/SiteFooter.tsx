@@ -8,6 +8,7 @@ const productLinks = [
   { href: "/app", label: "Payout console" },
   { href: "/docs", label: "Docs" },
   { href: "/whitepaper", label: "Whitepaper" },
+  { href: "/#roadmap", label: "Roadmap" },
 ];
 
 export function SiteFooter() {

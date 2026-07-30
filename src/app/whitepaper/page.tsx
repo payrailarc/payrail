@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Code, DocShell, Section, Table } from "@/components/doc";
 import { activeChain } from "@/lib/chain";
+import { ROADMAP } from "@/lib/roadmap";
 
 export const metadata: Metadata = {
   title: "Whitepaper — payrail",
@@ -189,13 +190,12 @@ executeBatch(batchId, recipients[], amounts[])
 
         <Section id="roadmap" title="7. Roadmap">
           <Table
-            head={["Phase", "Scope"]}
-            rows={[
-              ["v0.1 (now)", "CSV batches, maker/checker, USDC/EURC, reconciliation export, batch history."],
-              ["v0.2", "Safe/multisig flow, per-batch allowances, saved recipient books, batch splitting."],
-              ["v0.3", "REST ingestion and webhooks, scheduled runs, role-scoped console views."],
-              ["v1.0", "Audit, mainnet configuration when Arc opens, optional privacy on amounts."],
-            ]}
+            head={["Phase", "Status", "Scope"]}
+            rows={ROADMAP.map((phase) => [
+              `${phase.phase} — ${phase.title}`,
+              phase.status,
+              `${phase.items.join("; ")}.`,
+            ])}
           />
           <p>
             The console is live on {activeChain.name}. Start with the{" "}
