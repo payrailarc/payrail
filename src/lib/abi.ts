@@ -102,6 +102,47 @@ export const payoutDistributorAbi = [
     ],
   },
   {
+    type: "function",
+    name: "pause",
+    stateMutability: "nonpayable",
+    inputs: [],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "unpause",
+    stateMutability: "nonpayable",
+    inputs: [],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "setTreasury",
+    stateMutability: "nonpayable",
+    inputs: [{ name: "newTreasury", type: "address" }],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "grantRole",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "role", type: "bytes32" },
+      { name: "account", type: "address" },
+    ],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "revokeRole",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "role", type: "bytes32" },
+      { name: "account", type: "address" },
+    ],
+    outputs: [],
+  },
+  {
     type: "event",
     name: "BatchSubmitted",
     inputs: [
@@ -195,3 +236,11 @@ export type BatchStatusLabel = (typeof BATCH_STATUS)[number];
 export const OPERATOR_ROLE = keccak256(stringToHex("OPERATOR_ROLE"));
 export const APPROVER_ROLE = keccak256(stringToHex("APPROVER_ROLE"));
 export const PAUSER_ROLE = keccak256(stringToHex("PAUSER_ROLE"));
+export const DEFAULT_ADMIN_ROLE =
+  "0x0000000000000000000000000000000000000000000000000000000000000000" as const;
+
+export const GRANTABLE_ROLES = [
+  { id: OPERATOR_ROLE, label: "Operator" },
+  { id: APPROVER_ROLE, label: "Approver" },
+  { id: PAUSER_ROLE, label: "Pauser" },
+] as const;

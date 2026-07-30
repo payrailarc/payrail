@@ -3,7 +3,8 @@ import { activeChain } from "./chain";
 
 export const wagmiConfig = createConfig({
   chains: [activeChain],
-  connectors: [injected()],
+  connectors: [injected({ shimDisconnect: true })],
+  multiInjectedProviderDiscovery: true,
   transports: {
     [activeChain.id]: http(),
   },

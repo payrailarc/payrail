@@ -5,6 +5,7 @@ import { maxUint256 } from "viem";
 import type { Address } from "viem";
 import {
   useAccount,
+  useChainId,
   useReadContract,
   useWaitForTransactionReceipt,
   useWriteContract,
@@ -36,6 +37,7 @@ import {
 import { formatToken, shortenAddress } from "@/lib/format";
 import { useTrackedBatches } from "@/lib/batchStore";
 import { BatchHistory } from "@/components/BatchHistory";
+import { AdminPanel } from "@/components/AdminPanel";
 import { UploadIcon } from "@/components/icons";
 
 const SAMPLE_CSV = `address,amount,reference
@@ -49,7 +51,9 @@ const FLOW = ["Draft", "Pending", "Approved", "Executed"] as const;
 
 export function PayoutConsole() {
   const { address, isConnected } = useAccount();
+  const chainId = useChainId();
   const [tokenSymbol, setTokenSymbol] = useState<string>(TOKENS[0].symbol);
+  const [approveExact, setApproveExact] = useState(true);
   const [label, setLabel] = useState("payroll-2026-07");
   const [csv, setCsv] = useState(SAMPLE_CSV);
   const [fileName, setFileName] = useState<string>();
@@ -71,30 +75,31 @@ export function PayoutConsole() {
   const batchId = useMemo(() => (label.trim() ? batchIdFromLabel(label.trim()) : undefined), [label]);
   const overCap = rows.length > MAX_RECIPIENTS;
 
-  const { data: balance } = useReadContract({
-    address: token.address,
-    abi: erc20Abi,
-    functionName: "balanceOf",
-    args: address ? [address] : undefined,
-    query: { enabled: Boolean(address) },
-  });
-
-  const { data: allowance, refetch: refetchAllowance } = useReadContract({
-    address: token.address,
-    abi: erc20Abi,
-    functionName: "allowance",
-    args: address && configured ? [address, distributor as Address] : undefined,
-    query: { enabled: Boolean(address) && configured },
-  });
-
-  const { data: treasury } = useReadContract({
+  const { data: treasury, refetch: refetchTreasury } = useReadContract({
     address: configured ? (distributor as Address) : undefined,
     abi: payoutDistributorAbi,
     functionName: "treasury",
     query: { enabled: configured },
   });
 
-  const { data: paused } = useReadContract({
+  /** Payouts are pulled from the treasury allowance, so balance and allowance track the treasury. */
+  const { data: balance, refetch: refetchBalance } = useReadContract({
+    address: token.address,
+    abi: erc20Abi,
+    functionName: "balanceOf",
+    args: treasury ? [treasury] : undefined,
+    query: { enabled: Boolean(treasury) },
+  });
+
+  const { data: allowance, refetch: refetchAllowance } = useReadContract({
+    address: token.address,
+    abi: erc20Abi,
+    functionName: "allowance",
+    args: treasury && configured ? [treasury, distributor as Address] : undefined,
+    query: { enabled: Boolean(treasury) && configured },
+  });
+
+  const { data: paused, refetch: refetchPaused } = useReadContract({
     address: configured ? (distributor as Address) : undefined,
     abi: payoutDistributorAbi,
     functionName: "paused",
@@ -131,25 +136,65 @@ export function PayoutConsole() {
     query: { enabled: Boolean(txHash) },
   });
 
+  const refresh = useCallback(() => {
+    void refetchAllowance();
+    void refetchBalance();
+    void refetchBatch();
+    void refetchPaused();
+    void refetchTreasury();
+  }, [refetchAllowance, refetchBalance, refetchBatch, refetchPaused, refetchTreasury]);
+
   useEffect(() => {
     if (!isConfirmed) return;
-    void refetchAllowance();
-    void refetchBatch();
-  }, [isConfirmed, refetchAllowance, refetchBatch]);
+    refresh();
+  }, [isConfirmed, refresh]);
 
   const status = batch ? BATCH_STATUS[Number(batch.status)] : "None";
-  const allowanceCovers = allowance !== undefined && allowance >= total;
+  const allowanceCovers = allowance !== undefined && total > 0n && allowance >= total;
   const balanceCovers = balance === undefined || balance >= total;
   const isTreasury = Boolean(treasury && address && treasury.toLowerCase() === address.toLowerCase());
+  const wrongNetwork = isConnected && chainId !== activeChain.id;
+  const isSubmitter = Boolean(
+    batch && address && batch.submittedBy.toLowerCase() === address.toLowerCase(),
+  );
   const payloadMatches = !batch || batch.payloadHash === "0x".padEnd(66, "0") || batch.payloadHash === payloadHash;
-  const canSubmit =
-    configured &&
-    rows.length > 0 &&
-    errors.length === 0 &&
-    !overCap &&
-    Boolean(batchId) &&
-    status === "None" &&
-    !paused;
+  const payloadReady = rows.length > 0 && errors.length === 0 && !overCap && Boolean(batchId);
+  const blocked = !configured || wrongNetwork || Boolean(paused);
+  const canSubmit = payloadReady && !blocked && status === "None" && Boolean(isOperator);
+  const canApprove =
+    !blocked && status === "Pending" && Boolean(isApprover) && !isSubmitter;
+  const canExecute =
+    !blocked && status === "Approved" && payloadReady && payloadMatches && Boolean(isOperator);
+  const canCancel =
+    !configured || wrongNetwork ? false : (status === "Pending" || status === "Approved") && Boolean(isOperator);
+
+  const submitHint = wrongNetwork
+    ? `Switch your wallet to ${activeChain.name}`
+    : paused
+      ? "The distributor is paused"
+      : !payloadReady
+        ? "Fix the CSV rows first"
+        : status !== "None"
+          ? `This label already exists on-chain (${status})`
+          : !isOperator
+            ? "Your wallet needs OPERATOR_ROLE"
+            : undefined;
+  const approveHint = !isApprover
+    ? "Your wallet needs APPROVER_ROLE"
+    : isSubmitter
+      ? "The submitter cannot approve their own batch"
+      : status !== "Pending"
+        ? "Only a pending batch can be approved"
+        : undefined;
+  const executeHint = !isOperator
+    ? "Your wallet needs OPERATOR_ROLE"
+    : status !== "Approved"
+      ? "Batch must be approved first"
+      : !payloadMatches
+        ? "Rows no longer match the committed payload"
+        : !allowanceCovers
+          ? "Treasury allowance is below the batch total"
+          : undefined;
   const flowIndex = status === "None" ? 0 : FLOW.indexOf(status as (typeof FLOW)[number]);
 
   const readFile = useCallback((file: File) => {
@@ -174,7 +219,8 @@ export function PayoutConsole() {
       address: token.address,
       abi: erc20Abi,
       functionName: "approve",
-      args: [distributor as Address, maxUint256],
+      args: [distributor as Address, approveExact ? total : maxUint256],
+      chainId: activeChain.id,
     });
   }
 
@@ -187,6 +233,7 @@ export function PayoutConsole() {
       abi: payoutDistributorAbi,
       functionName: "submitBatch",
       args: [batchId, token.address, total, rows.length, payloadHash],
+      chainId: activeChain.id,
     });
   }
 
@@ -198,6 +245,7 @@ export function PayoutConsole() {
       abi: payoutDistributorAbi,
       functionName: "approveBatch",
       args: [batchId],
+      chainId: activeChain.id,
     });
   }
 
@@ -209,6 +257,7 @@ export function PayoutConsole() {
       abi: payoutDistributorAbi,
       functionName: "executeBatch",
       args: [batchId, rows.map((row) => row.recipient), rows.map((row) => row.amount)],
+      chainId: activeChain.id,
     });
   }
 
@@ -220,6 +269,7 @@ export function PayoutConsole() {
       abi: payoutDistributorAbi,
       functionName: "cancelBatch",
       args: [batchId],
+      chainId: activeChain.id,
     });
   }
 
@@ -246,6 +296,12 @@ export function PayoutConsole() {
           Deploy <code className="font-mono">PayoutDistributor</code> to {activeChain.name} and set{" "}
           <code className="font-mono">NEXT_PUBLIC_PAYOUT_DISTRIBUTOR</code>. The batch builder below
           still validates and hashes payloads without it.
+        </Callout>
+      )}
+      {wrongNetwork && (
+        <Callout tone="warn" title="Wrong network">
+          Your wallet is on chain {chainId}. Switch to {activeChain.name} (chain {activeChain.id})
+          with the button in the header to enable transactions.
         </Callout>
       )}
       {paused && (
@@ -464,13 +520,13 @@ export function PayoutConsole() {
               <Row label="Total" value={`${formatToken(total, token.decimals)} ${token.symbol}`} />
               <Row label="Status" value={status} />
               <Row
-                label="Your balance"
+                label="Treasury balance"
                 value={
                   balance === undefined ? "—" : `${formatToken(balance, token.decimals)} ${token.symbol}`
                 }
               />
               <Row
-                label="Allowance"
+                label="Treasury allowance"
                 value={
                   allowance === undefined
                     ? "—"
@@ -510,14 +566,41 @@ export function PayoutConsole() {
               </p>
             ) : (
               <div className="mt-6 space-y-2">
+                <div className="flex items-center justify-between text-xs text-navy/55">
+                  <span>Approval amount</span>
+                  <div className="flex gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setApproveExact(true)}
+                      className={`rounded-full px-2.5 py-1 ${approveExact ? "bg-ice text-arcblue" : "text-navy/50"}`}
+                    >
+                      Exact total
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setApproveExact(false)}
+                      className={`rounded-full px-2.5 py-1 ${approveExact ? "text-navy/50" : "bg-ice text-arcblue"}`}
+                    >
+                      Unlimited
+                    </button>
+                  </div>
+                </div>
                 <button
                   type="button"
                   onClick={approveSpending}
-                  disabled={!configured || isPending || allowanceCovers}
+                  disabled={!configured || wrongNetwork || isPending || !isTreasury || total === 0n}
                   className="w-full rounded-xl border border-navy/15 py-3 text-sm text-navy transition hover:border-navy/40 disabled:opacity-50"
                 >
-                  {allowanceCovers ? "Allowance ready" : `Approve ${token.symbol} spending`}
+                  {approveExact
+                    ? `Approve ${formatToken(total, token.decimals)} ${token.symbol}`
+                    : `Approve unlimited ${token.symbol}`}
                 </button>
+                {!isTreasury && (
+                  <Hint>Only the treasury wallet can change the distributor allowance.</Hint>
+                )}
+                {isTreasury && allowanceCovers && (
+                  <Hint>Allowance already covers this batch total.</Hint>
+                )}
                 <button
                   type="button"
                   onClick={submitBatch}
@@ -526,27 +609,30 @@ export function PayoutConsole() {
                 >
                   Submit batch
                 </button>
+                {!canSubmit && submitHint && <Hint>{submitHint}</Hint>}
                 <button
                   type="button"
                   onClick={approveBatch}
-                  disabled={!configured || isPending || status !== "Pending" || Boolean(paused)}
+                  disabled={!canApprove || isPending}
                   className="w-full rounded-xl border border-navy/15 py-3 text-sm text-navy transition hover:border-navy/40 disabled:opacity-50"
                 >
                   Approve batch (second signer)
                 </button>
+                {!canApprove && approveHint && <Hint>{approveHint}</Hint>}
                 <button
                   type="button"
                   onClick={executeBatch}
-                  disabled={!configured || isPending || status !== "Approved" || !payloadMatches || Boolean(paused)}
+                  disabled={!canExecute || isPending}
                   className="w-full rounded-xl bg-arcblue py-3 text-sm font-medium text-white transition hover:bg-arcblue/90 disabled:opacity-50"
                 >
                   Execute batch
                 </button>
+                {!canExecute && executeHint && <Hint>{executeHint}</Hint>}
                 {(status === "Pending" || status === "Approved") && (
                   <button
                     type="button"
                     onClick={cancelBatch}
-                    disabled={!configured || isPending}
+                    disabled={!canCancel || isPending}
                     className="w-full rounded-xl py-2 text-xs text-red-700 transition hover:bg-red-50 disabled:opacity-50"
                   >
                     Cancel batch
@@ -582,6 +668,15 @@ export function PayoutConsole() {
             )}
           </div>
 
+          {isConnected && configured && !wrongNetwork && (
+            <AdminPanel
+              distributor={distributor as Address}
+              paused={Boolean(paused)}
+              treasury={treasury}
+              onChanged={refresh}
+            />
+          )}
+
           <div className="rounded-2xl border border-navy/10 bg-white p-6 text-xs leading-relaxed text-navy/60">
             <h3 className="text-sm text-navy">Arc notes</h3>
             <p className="mt-2">
@@ -593,6 +688,10 @@ export function PayoutConsole() {
       </div>
     </div>
   );
+}
+
+function Hint({ children }: { children: React.ReactNode }) {
+  return <p className="px-1 text-xs text-navy/45">{children}</p>;
 }
 
 function Badge({ active, children }: { active: boolean; children: string }) {
