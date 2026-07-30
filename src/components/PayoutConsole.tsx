@@ -240,7 +240,7 @@ export function PayoutConsole() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-10">
+    <div className="mx-auto max-w-6xl px-5 py-8 sm:px-6 sm:py-10">
       {!configured && (
         <Callout tone="warn" title="No distributor configured">
           Deploy <code className="font-mono">PayoutDistributor</code> to {activeChain.name} and set{" "}
@@ -255,7 +255,7 @@ export function PayoutConsole() {
         </Callout>
       )}
 
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
         {FLOW.map((phase, index) => (
           <div key={phase} className="flex items-center gap-2">
             <span
@@ -279,14 +279,14 @@ export function PayoutConsole() {
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[1.45fr_1fr]">
         <section className="space-y-6">
-          <div className="rounded-2xl border border-navy/10 bg-white p-6">
+          <div className="rounded-2xl border border-navy/10 bg-white p-5 sm:p-6">
             <div className="flex flex-wrap items-end gap-4">
-              <label className="flex flex-col gap-1 text-xs text-navy/60">
+              <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs text-navy/60 sm:flex-none">
                 Batch label
                 <input
                   value={label}
                   onChange={(event) => setLabel(event.target.value)}
-                  className="w-56 rounded-lg border border-navy/15 px-3 py-2 text-sm text-navy outline-none focus:border-arcblue"
+                  className="w-full rounded-lg border border-navy/15 px-3 py-2 text-sm text-navy outline-none focus:border-arcblue sm:w-56"
                   placeholder="payroll-2026-07"
                 />
               </label>
@@ -295,7 +295,7 @@ export function PayoutConsole() {
                 <select
                   value={tokenSymbol}
                   onChange={(event) => setTokenSymbol(event.target.value)}
-                  className="w-32 rounded-lg border border-navy/15 px-3 py-2 text-sm text-navy outline-none focus:border-arcblue"
+                  className="w-28 rounded-lg border border-navy/15 px-3 py-2 text-sm text-navy outline-none focus:border-arcblue sm:w-32"
                 >
                   {TOKENS.map((entry) => (
                     <option key={entry.symbol} value={entry.symbol}>
@@ -402,8 +402,8 @@ export function PayoutConsole() {
             )}
 
             {rows.length > 0 && (
-              <div className="mt-6 overflow-hidden rounded-xl border border-navy/10">
-                <table className="w-full text-sm">
+              <div className="mt-6 overflow-x-auto rounded-xl border border-navy/10">
+                <table className="w-full min-w-[26rem] text-sm">
                   <thead className="bg-ice/70 text-left text-xs uppercase tracking-wider text-navy/50">
                     <tr>
                       <th className="px-4 py-2 font-medium">Recipient</th>
@@ -425,7 +425,7 @@ export function PayoutConsole() {
                           </a>
                         </td>
                         <td className="px-4 py-2 text-xs text-navy/60">{row.reference || "—"}</td>
-                        <td className="px-4 py-2 text-right tabular-nums">
+                        <td className="whitespace-nowrap px-4 py-2 text-right tabular-nums">
                           {formatToken(row.amount, token.decimals)} {token.symbol}
                         </td>
                       </tr>
@@ -449,8 +449,8 @@ export function PayoutConsole() {
           />
         </section>
 
-        <aside className="space-y-6">
-          <div className="rounded-2xl border border-navy/10 bg-white p-6">
+        <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
+          <div className="rounded-2xl border border-navy/10 bg-white p-5 sm:p-6">
             <div className="flex items-center justify-between">
               <h2 className="text-base">Batch summary</h2>
               {rows.length > 0 && (

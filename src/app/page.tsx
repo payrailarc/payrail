@@ -73,50 +73,50 @@ export default function Home() {
       <SiteHeader />
 
       <section className="arc-grid border-b border-navy/5">
-        <div className="mx-auto grid max-w-6xl gap-12 px-6 pb-24 pt-16 lg:grid-cols-2 lg:items-center">
+        <div className="mx-auto grid max-w-6xl gap-12 px-5 pb-16 pt-12 sm:px-6 sm:pb-24 sm:pt-16 lg:grid-cols-2 lg:items-center">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full border border-navy/10 bg-white px-3 py-1 text-xs tracking-[0.18em] text-navy/60">
               {USE_MAINNET ? "LIVE ON ARC" : "BUILT ON ARC TESTNET"}
             </span>
-            <h1 className="mt-6 text-5xl leading-[1.05] tracking-tight text-navy sm:text-6xl">
+            <h1 className="mt-6 text-[2.5rem] leading-[1.08] tracking-tight text-navy sm:text-5xl lg:text-6xl lg:leading-[1.05]">
               Payroll and vendor payouts,
               <span className="block text-arcblue">settled in one transaction.</span>
             </h1>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-navy/70">
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-navy/70 sm:mt-6 sm:text-lg">
               payrail turns a spreadsheet into a single USDC settlement on Arc — with on-chain
               approval controls, predictable fees and records your finance team can reconcile.
             </p>
-            <div className="mt-9 flex flex-wrap items-center gap-3">
+            <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
                 href="/app"
-                className="rounded-full bg-navy px-7 py-3.5 text-sm font-medium text-white transition hover:bg-navy-soft"
+                className="rounded-full bg-navy px-6 py-3.5 text-sm font-medium text-white transition hover:bg-navy-soft sm:px-7"
               >
                 Run a payout batch
               </Link>
               <Link
                 href="/docs"
-                className="rounded-full border border-navy/15 px-7 py-3.5 text-sm font-medium text-navy transition hover:border-navy/40"
+                className="rounded-full border border-navy/15 px-6 py-3.5 text-sm font-medium text-navy transition hover:border-navy/40 sm:px-7"
               >
                 Read the docs
               </Link>
-              <a
-                href={FAUCET_URL}
-                target="_blank"
-                rel="noreferrer"
-                className="px-2 py-3.5 text-sm text-navy/60 underline-offset-4 transition hover:text-navy hover:underline"
-              >
-                Get testnet USDC
-              </a>
             </div>
-            <dl className="mt-12 grid max-w-lg grid-cols-3 gap-6 text-sm">
+            <a
+              href={FAUCET_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-4 inline-block text-sm text-navy/55 underline-offset-4 transition hover:text-navy hover:underline"
+            >
+              Get testnet USDC from the Circle faucet →
+            </a>
+            <dl className="mt-10 grid max-w-lg grid-cols-3 gap-4 text-sm sm:mt-12 sm:gap-6">
               {[
                 ["< 1s", "finality"],
                 ["USDC", "is the gas token"],
                 ["500", "recipients per tx"],
               ].map(([value, label]) => (
                 <div key={label}>
-                  <dt className="text-2xl text-navy">{value}</dt>
-                  <dd className="mt-1 text-navy/55">{label}</dd>
+                  <dt className="text-xl text-navy sm:text-2xl">{value}</dt>
+                  <dd className="mt-1 text-xs text-navy/55 sm:text-sm">{label}</dd>
                 </div>
               ))}
             </dl>
@@ -142,7 +142,7 @@ export default function Home() {
                 ].map(([addr, amount]) => (
                   <div key={addr} className="flex items-center justify-between">
                     <span className="font-mono text-navy/70">{addr}</span>
-                    <span className="tabular-nums text-navy">{amount} USDC</span>
+                    <span className="whitespace-nowrap tabular-nums text-navy">{amount} USDC</span>
                   </div>
                 ))}
                 <div className="flex items-center justify-between border-t border-navy/5 pt-3 text-navy">
@@ -166,8 +166,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="how" className="mx-auto max-w-6xl px-6 py-24">
-        <h2 className="text-3xl tracking-tight">How a payout run works</h2>
+      <section id="how" className="mx-auto max-w-6xl scroll-mt-20 px-5 py-16 sm:px-6 sm:py-24">
+        <p className="text-xs tracking-[0.2em] text-sky">WORKFLOW</p>
+        <h2 className="mt-3 text-2xl tracking-tight sm:text-3xl">How a payout run works</h2>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-navy/60">
           Four steps, two signers, one settlement transaction. Every step is enforced by the
           distributor contract rather than by convention.
@@ -183,9 +184,10 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-ice/60 py-24">
-        <div className="mx-auto max-w-6xl px-6">
-          <h2 className="text-3xl tracking-tight">Built for finance operations</h2>
+      <section className="bg-ice/60 py-16 sm:py-24">
+        <div className="mx-auto max-w-6xl px-5 sm:px-6">
+          <p className="text-xs tracking-[0.2em] text-sky">PLATFORM</p>
+          <h2 className="mt-3 text-2xl tracking-tight sm:text-3xl">Built for finance operations</h2>
           <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {features.map((feature) => (
               <div key={feature.title}>
@@ -197,8 +199,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 py-24">
-        <h2 className="text-3xl tracking-tight">What teams pay with it</h2>
+      <section className="mx-auto max-w-6xl px-5 py-16 sm:px-6 sm:py-24">
+        <p className="text-xs tracking-[0.2em] text-sky">USE CASES</p>
+        <h2 className="mt-3 text-2xl tracking-tight sm:text-3xl">What teams pay with it</h2>
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {useCases.map((item) => (
             <div key={item.title} className="rounded-2xl bg-ice/60 p-6">
@@ -209,10 +212,11 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="network" className="mx-auto max-w-6xl px-6 pb-24">
-        <div className="grid gap-10 rounded-3xl border border-navy/10 p-10 lg:grid-cols-2">
+      <section id="network" className="mx-auto max-w-6xl scroll-mt-20 px-5 pb-16 sm:px-6 sm:pb-24">
+        <div className="grid gap-10 rounded-3xl border border-navy/10 p-6 sm:p-10 lg:grid-cols-2">
           <div>
-            <h2 className="text-3xl tracking-tight">Network</h2>
+            <p className="text-xs tracking-[0.2em] text-sky">NETWORK</p>
+            <h2 className="mt-3 text-2xl tracking-tight sm:text-3xl">Built on Arc</h2>
             <p className="mt-4 text-sm leading-relaxed text-navy/65">
               payrail runs on <span className="text-navy">{activeChain.name}</span>. Arc is Circle&apos;s
               layer 1 where USDC is the native gas token. Arc mainnet is not open to the public yet, so
@@ -242,10 +246,10 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 pb-24">
-        <div className="flex flex-col items-start justify-between gap-6 rounded-3xl bg-navy p-10 text-white sm:flex-row sm:items-center">
+      <section className="mx-auto max-w-6xl px-5 pb-16 sm:px-6 sm:pb-24">
+        <div className="flex flex-col items-start justify-between gap-6 rounded-3xl bg-navy p-6 text-white sm:flex-row sm:items-center sm:p-10">
           <div>
-            <h2 className="text-2xl tracking-tight">Run your first batch in a few minutes</h2>
+            <h2 className="text-xl tracking-tight sm:text-2xl">Run your first batch in a few minutes</h2>
             <p className="mt-2 text-sm text-white/60">
               Connect a wallet on {activeChain.name}, paste a CSV, and settle it end to end.
             </p>

@@ -16,8 +16,8 @@ export function SiteFooter() {
     : EXPLORER_URL;
 
   return (
-    <footer className="border-t border-navy/10 bg-navy py-14 text-white/70">
-      <div className="mx-auto grid max-w-6xl gap-10 px-6 sm:grid-cols-2 lg:grid-cols-4">
+    <footer className="border-t border-navy/10 bg-navy py-12 text-white/70 sm:py-14">
+      <div className="mx-auto grid max-w-6xl gap-10 px-5 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
         <div className="space-y-4">
           <Logo tone="dark" />
           <p className="text-xs leading-relaxed text-white/50">
@@ -78,7 +78,7 @@ export function SiteFooter() {
         </div>
       </div>
 
-      <div className="mx-auto mt-12 flex max-w-6xl flex-col gap-3 px-6 text-xs text-white/40 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mx-auto mt-12 flex max-w-6xl flex-col gap-3 border-t border-white/10 px-5 pt-6 text-xs text-white/40 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <p className="tracking-[0.2em]">USDC PAYOUTS ON ARC</p>
         <p>Testnet software. Not audited — review the contract before moving real funds.</p>
       </div>
