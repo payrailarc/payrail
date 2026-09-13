@@ -49,7 +49,7 @@ The build targets one network at a time, selected by `NEXT_PUBLIC_ARC_NETWORK`.
 | | Arc Testnet | Arc Mainnet |
 | --- | --- | --- |
 | Chain id | `5042002` | `5042` |
-| RPC | `https://rpc.testnet.arc.network` | `https://rpc.blockdaemon.mainnet.arc.io` |
+| RPC | `https://rpc.testnet.arc.network` | `https://rpc.arc-scan.org` |
 | Explorer | https://testnet.arcscan.app | https://arc.exploreme.pro |
 | USDC (ERC-20) | `0x3600…0000`, 6 decimals | `0x3600…0000`, 6 decimals |
 | EURC | `0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a` | — |
@@ -121,7 +121,7 @@ From the CLI:
 
 ```bash
 forge create contracts/src/PayoutDistributor.sol:PayoutDistributor \
-  --rpc-url https://rpc.blockdaemon.mainnet.arc.io \
+  --rpc-url https://rpc.arc-scan.org \
   --interactive \
   --constructor-args <admin> <treasury>
 ```

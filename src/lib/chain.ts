@@ -6,7 +6,7 @@ import type { Address, Chain } from "viem";
  * The app stays on Arc Testnet unless NEXT_PUBLIC_ARC_NETWORK is set to `mainnet`.
  */
 export const ARC_MAINNET_RPC =
-  process.env.NEXT_PUBLIC_ARC_MAINNET_RPC_URL || "https://rpc.blockdaemon.mainnet.arc.io";
+  process.env.NEXT_PUBLIC_ARC_MAINNET_RPC_URL || "https://rpc.arc-scan.org";
 
 export const arcMainnet: Chain = {
   ...arc,

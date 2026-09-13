@@ -10,3 +10,4 @@ remappings = ["forge-std/=lib/forge-std/src/", "@openzeppelin/contracts/=lib/ope
 
 [rpc_endpoints]
 arc_testnet = "${ARC_TESTNET_RPC_URL}"
+arc_mainnet = "${ARC_MAINNET_RPC_URL}"
