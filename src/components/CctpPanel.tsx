@@ -123,7 +123,11 @@ export function CctpPanel() {
   const recipientValid = isAddress(recipientValue, { strict: false });
   const maxFee = value === undefined ? undefined : maxFeeFor(fees, speed, value);
 
-  const { data: walletBalance, refetch: refetchWalletBalance } = useReadContract({
+  const {
+    data: walletBalance,
+    error: balanceError,
+    refetch: refetchWalletBalance,
+  } = useReadContract({
     address: source.usdc,
     abi: erc20Abi,
     functionName: "balanceOf",
@@ -141,7 +145,13 @@ export function CctpPanel() {
     query: { enabled: Boolean(address) },
   });
 
-  const { writeContract, data: txHash, isPending: isWriting, reset } = useWriteContract();
+  const {
+    writeContract,
+    data: txHash,
+    error: writeError,
+    isPending: isWriting,
+    reset,
+  } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
     hash: txHash,
     query: { enabled: Boolean(txHash) },
@@ -150,6 +160,16 @@ export function CctpPanel() {
   useEffect(() => {
     setBurn(loadSavedBurn());
   }, []);
+
+  useEffect(() => {
+    if (!writeError) return;
+    setBusy(undefined);
+    setFailure(
+      "shortMessage" in writeError && typeof writeError.shortMessage === "string"
+        ? writeError.shortMessage
+        : writeError.message,
+    );
+  }, [writeError]);
 
   useEffect(() => {
     setFees(undefined);
@@ -369,6 +389,15 @@ export function CctpPanel() {
               value={
                 walletBalance === undefined ? "—" : `${formatToken(walletBalance, USDC_DECIMALS)} USDC`
               }
+              hint={
+                !address
+                  ? "connect a wallet"
+                  : balanceError
+                    ? "balance unavailable"
+                    : walletBalance === undefined
+                      ? "loading"
+                      : undefined
+              }
             />
             <Stat
               label="Circle fee (max)"
@@ -548,7 +577,7 @@ export function CctpPanel() {
           )}
         </div>
 
-        {(burn || txHash || failure) && (
+        {(burn || txHash || failure || balanceError) && (
           <div className="rounded-2xl border border-navy/10 bg-white p-5 sm:p-6">
             <h3 className="text-base">Activity</h3>
             {burn && (
@@ -587,6 +616,12 @@ export function CctpPanel() {
             )}
             {failure && (
               <p className="mt-3 break-words rounded-xl bg-red-50 p-3 text-xs text-red-700">{failure}</p>
+            )}
+            {balanceError && !failure && (
+              <p className="mt-3 break-words rounded-xl bg-amber-50 p-3 text-xs text-amber-800">
+                Could not read your USDC balance on {source.chain.name}:{" "}
+                {balanceError.shortMessage}
+              </p>
             )}
           </div>
         )}

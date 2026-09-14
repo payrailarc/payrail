@@ -120,7 +120,13 @@ export function BridgePanel() {
     query: { enabled: Boolean(address) },
   });
 
-  const { writeContract, data: txHash, isPending: isWriting, reset } = useWriteContract();
+  const {
+    writeContract,
+    data: txHash,
+    error: writeError,
+    isPending: isWriting,
+    reset,
+  } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
     hash: txHash,
     query: { enabled: Boolean(txHash) },
@@ -137,6 +143,16 @@ export function BridgePanel() {
       setFailure(error instanceof Error ? error.message : String(error));
     }
   }, [address, source.domain]);
+
+  useEffect(() => {
+    if (!writeError) return;
+    setBusy(undefined);
+    setFailure(
+      "shortMessage" in writeError && typeof writeError.shortMessage === "string"
+        ? writeError.shortMessage
+        : writeError.message,
+    );
+  }, [writeError]);
 
   useEffect(() => {
     void refreshGatewayBalance();
