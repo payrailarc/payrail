@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
-import { XIcon } from "@/components/icons";
-import { X_HANDLE, X_URL } from "@/lib/site";
+import { GitHubIcon, XIcon } from "@/components/icons";
+import { GITHUB_HANDLE, GITHUB_URL, X_HANDLE, X_URL } from "@/lib/site";
 import { EXPLORER_URL, FAUCET_URL, PAYOUT_DISTRIBUTOR_ADDRESS, activeChain } from "@/lib/chain";
 
 const productLinks = [
@@ -25,15 +25,26 @@ export function SiteFooter() {
           <p className="text-xs leading-relaxed text-white/50">
             Batch USDC and EURC payouts on Arc, with maker/checker approval and audit-ready records.
           </p>
-          <a
-            href={X_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-2 rounded-full border border-white/15 px-3 py-1.5 text-xs text-white/70 transition hover:border-white/40 hover:text-white"
-          >
-            <XIcon className="h-3.5 w-3.5" />
-            {X_HANDLE}
-          </a>
+          <div className="flex flex-wrap gap-2">
+            <a
+              href={X_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 px-3 py-1.5 text-xs text-white/70 transition hover:border-white/40 hover:text-white"
+            >
+              <XIcon className="h-3.5 w-3.5" />
+              {X_HANDLE}
+            </a>
+            <a
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 px-3 py-1.5 text-xs text-white/70 transition hover:border-white/40 hover:text-white"
+            >
+              <GitHubIcon className="h-3.5 w-3.5" />
+              {GITHUB_HANDLE}
+            </a>
+          </div>
         </div>
 
         <div>

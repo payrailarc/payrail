@@ -3,8 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
-import { MenuIcon, XIcon } from "@/components/icons";
-import { NAV_LINKS, X_URL } from "@/lib/site";
+import { GitHubIcon, MenuIcon, XIcon } from "@/components/icons";
+import { GITHUB_URL, NAV_LINKS, X_URL } from "@/lib/site";
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
@@ -35,6 +35,15 @@ export function SiteHeader() {
           >
             <XIcon className="h-4 w-4" />
           </a>
+          <a
+            href={GITHUB_URL}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="payrail on GitHub"
+            className="rounded-full p-2.5 text-navy/60 transition hover:bg-ice hover:text-navy"
+          >
+            <GitHubIcon className="h-4 w-4" />
+          </a>
           <Link
             href="/app"
             className="ml-1 rounded-full bg-navy px-5 py-2.5 font-medium text-white transition hover:bg-navy-soft"
@@ -52,6 +61,15 @@ export function SiteHeader() {
             className="rounded-full p-2.5 text-navy/60 transition hover:bg-ice hover:text-navy"
           >
             <XIcon className="h-4 w-4" />
+          </a>
+          <a
+            href={GITHUB_URL}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="payrail on GitHub"
+            className="rounded-full p-2.5 text-navy/60 transition hover:bg-ice hover:text-navy"
+          >
+            <GitHubIcon className="h-4 w-4" />
           </a>
           <Link
             href="/app"
