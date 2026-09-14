@@ -48,7 +48,7 @@ export const ROADMAP: readonly RoadmapPhase[] = [
     status: "Planned",
     items: [
       "External audit of the distributor contract",
-      "Arc mainnet configuration once a public RPC opens",
+      "Mainnet distributor deployment and treasury handover",
       "Optional privacy on payout amounts",
       "CCTP funding from other chains into the treasury",
     ],
