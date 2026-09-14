@@ -79,11 +79,6 @@ export function SiteFooter() {
           </ul>
         </div>
       </div>
-
-      <div className="mx-auto mt-12 flex max-w-6xl flex-col gap-3 border-t border-white/10 px-5 pt-6 text-xs text-white/40 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <p className="tracking-[0.2em]">USDC PAYOUTS ON ARC</p>
-        <p>Not audited — review the contract before moving real funds.</p>
-      </div>
     </footer>
   );
 }
