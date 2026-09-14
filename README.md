@@ -36,7 +36,7 @@ the worst case for a compromised operator is a batch that a second signer still 
 ```
 src/app/               Next.js routes: / (landing), /app (console), /bridge, /docs, /whitepaper
 src/components/        Console, admin panel, batch history, bridge panel, wallet connect, deploy panel
-src/lib/               Chain config, contract ABI, CSV parsing/hashing, Circle Gateway client, wagmi
+src/lib/               Chain config, contract ABI, CSV parsing/hashing, Circle CCTP + Gateway clients, wagmi
 contracts/src/         PayoutDistributor.sol
 contracts/test/        Foundry tests (10 cases, full lifecycle + negative paths)
 contracts/script/      Deploy.s.sol
@@ -60,16 +60,21 @@ USDC is the native gas token. The native view has 18 decimals and is used only f
 `msg.value`; the ERC-20 view has 6 decimals and is used for every balance, transfer and display in
 the app. They are the same funds and are never summed.
 
-## Funding a treasury (Circle Gateway)
+## Funding a treasury (Circle CCTP V2 / Gateway)
 
-`/bridge` moves native USDC onto Arc without a third-party router: approve the Gateway wallet,
-deposit, sign an EIP-712 burn intent, then `gatewayMint(bytes,bytes)` on Arc. The fee is the source
-chain gas fee plus 0.5 bps, quoted before signing.
+`/bridge` moves native USDC onto Arc without a third-party router. Arc is Circle domain `26`.
 
-Arc is Circle domain `26`. It is listed on the testnet Gateway API; on mainnet
-`https://gateway-api.circle.com/v1/info` does **not** list it yet, so the page detects that at
-runtime, shows the reason and disables signing instead of taking a deposit that cannot be attested.
-No code change is needed once Circle enables the domain.
+**CCTP V2** (default on mainnet, live on both networks): approve `TokenMessengerV2`,
+`depositForBurn(amount, 26, recipient, usdc, 0x0, maxFee, finality)` on the source chain, poll
+`GET /v2/messages/{sourceDomain}?transactionHash=` on Circle's Iris API, then
+`receiveMessage(message, attestation)` on Arc's `MessageTransmitterV2`. Fast (finality 1000) costs
+the bps Circle quotes at `/v2/burn/USDC/fees/{src}/26`; standard (2000) is free but waits for source
+finality. A pending burn is kept in `localStorage` and can be resumed from its tx hash.
+
+**Gateway**: approve the Gateway wallet, deposit, sign an EIP-712 burn intent, then
+`gatewayMint(bytes,bytes)` on Arc. Arc is listed on the testnet Gateway API; on mainnet
+`https://gateway-api.circle.com/v1/info` does **not** list it yet, so that tab detects it at runtime
+and disables signing instead of taking a deposit that cannot be attested.
 
 ## Running locally
 

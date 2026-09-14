@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BridgePanel } from "@/components/BridgePanel";
+import { BridgeRoutes } from "@/components/BridgeRoutes";
 import { ConnectWallet } from "@/components/ConnectWallet";
 import { Logo } from "@/components/Logo";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -9,7 +9,7 @@ import { activeChain } from "@/lib/chain";
 export const metadata: Metadata = {
   title: "Bridge USDC to Arc",
   description:
-    "Fund an Arc treasury with native USDC through Circle Gateway: deposit on the source chain, sign a burn intent, mint on Arc.",
+    "Fund an Arc treasury with native USDC through Circle CCTP V2 or Gateway: burn on the source chain, mint on Arc.",
 };
 
 export default function BridgePage() {
@@ -44,11 +44,12 @@ export default function BridgePage() {
         </h1>
         <p className="mt-4 max-w-2xl text-sm leading-relaxed text-navy/65">
           Payouts settle from the treasury balance, so USDC has to reach {activeChain.name} first.
-          This route uses Circle Gateway: you deposit into your own Gateway balance, sign a burn
-          intent, and mint native USDC on Arc — no wrapped assets, no third-party custody.
+          Both routes are Circle&apos;s own burn-and-mint rails: CCTP V2 burns in your wallet and
+          mints native USDC on Arc; Gateway does the same from a deposited balance with a signature
+          — no wrapped assets, no third-party custody.
         </p>
         <div className="mt-10">
-          <BridgePanel />
+          <BridgeRoutes />
         </div>
       </div>
 

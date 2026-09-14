@@ -18,6 +18,7 @@ export const ROADMAP: readonly RoadmapPhase[] = [
       "USDC and EURC payouts, up to 500 recipients per transaction",
       "Wallet connect, network switching, role and pause controls",
       "Reconciliation CSV export and browser-tracked batch history",
+      "CCTP V2 funding from Ethereum, Base, Arbitrum, Optimism and Polygon",
     ],
   },
   {
@@ -50,7 +51,7 @@ export const ROADMAP: readonly RoadmapPhase[] = [
       "External audit of the distributor contract",
       "Mainnet distributor deployment and treasury handover",
       "Optional privacy on payout amounts",
-      "CCTP funding from other chains into the treasury",
+      "Gateway funding on mainnet once Circle lists Arc",
     ],
   },
 ];

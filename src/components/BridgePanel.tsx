@@ -251,7 +251,7 @@ export function BridgePanel() {
           Circle&apos;s Gateway contracts are live on {activeChain.name}, but its API lists only{" "}
           {domains?.length ?? 0} active mainnet chains and domain {ARC_DOMAIN} is not one of them, so
           it refuses to attest a transfer into {activeChain.name} — signing here would waste a
-          deposit. Arc Testnet is listed and works today.
+          deposit. Use the CCTP V2 route above, which is live on {activeChain.name} today.
         </div>
       )}
       <section className="space-y-6">

@@ -97,20 +97,31 @@ export default function DocsPage() {
             <Link href="/bridge" className="text-arcblue underline">
               bridge page
             </Link>{" "}
-            walks through Circle Gateway, which moves native USDC rather than minting a wrapped
-            asset:
+            offers two of Circle&apos;s burn-and-mint rails; both move native USDC rather than
+            minting a wrapped asset. CCTP V2 is the default on mainnet:
           </p>
           <ol className="ml-4 list-decimal space-y-2">
-            <li>approve Circle&apos;s Gateway wallet on the source chain,</li>
-            <li>deposit into your own Gateway balance — the deposit stays yours,</li>
-            <li>sign an EIP-712 burn intent naming the Arc recipient,</li>
-            <li>submit the returned attestation to the Gateway minter on Arc.</li>
+            <li>approve Circle&apos;s TokenMessenger on the source chain,</li>
+            <li>
+              <code>depositForBurn</code> the amount to Arc (domain 26) with the recipient and a fee
+              cap,
+            </li>
+            <li>the page polls Circle until the attestation is signed,</li>
+            <li>
+              <code>receiveMessage</code> on Arc&apos;s MessageTransmitter mints the USDC to the
+              recipient.
+            </li>
           </ol>
           <p>
-            The fee is the source chain&apos;s gas fee plus 0.5 basis points of the amount, taken from
-            the Gateway balance, so the console deposits amount plus fee. Circle lists which chains
-            are active per network; Arc is domain 26 and is currently listed on testnet only, and the
-            bridge page says so rather than letting you sign an intent that would be refused.
+            Fast transfers attest in seconds to minutes for a small fee in basis points; standard
+            transfers wait for source-chain finality and are free. The fee is taken from the burned
+            amount, so the recipient receives amount minus fee. A pending burn is remembered in the
+            browser and can also be resumed from its transaction hash.
+          </p>
+          <p>
+            Gateway is the second route: deposit once into your own Gateway balance, then sign an
+            EIP-712 burn intent per transfer. Arc is listed on Circle&apos;s testnet Gateway API but
+            not on mainnet yet, so the Gateway tab detects that and disables signing on mainnet.
           </p>
         </Section>
 
