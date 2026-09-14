@@ -95,12 +95,18 @@ export async function fetchBurnFees(sourceDomain: number): Promise<BurnFee[]> {
   return (await res.json()) as BurnFee[];
 }
 
-/** Circle takes `minimumFee` bps out of the burned amount; `maxFee` is the cap the burn accepts. */
+/**
+ * Circle takes `minimumFee` bps out of the burned amount; `maxFee` is the cap the burn accepts.
+ * Undefined until the quote has loaded: a fast burn sent with maxFee 0 is held by Circle
+ * (`delayReason: insufficient_fee`) until source finality, defeating the point of fast.
+ */
 export function maxFeeFor(fees: BurnFee[] | undefined, speed: Speed, value: bigint) {
   const threshold = speed === "fast" ? FAST_FINALITY : STANDARD_FINALITY;
-  const bps = fees?.find((fee) => fee.finalityThreshold === threshold)?.minimumFee ?? 0;
-  if (bps === 0) return 0n;
-  const scaled = BigInt(Math.ceil(bps * 100));
+  const quote = fees?.find((fee) => fee.finalityThreshold === threshold);
+  if (!quote) return speed === "standard" ? 0n : undefined;
+  if (quote.minimumFee === 0) return 0n;
+  // bps → parts per million with 10% headroom, rounded up.
+  const scaled = BigInt(Math.ceil(quote.minimumFee * 100 * 1.1));
   const fee = (value * scaled + 999_999n) / 1_000_000n;
   return fee < 1n ? 1n : fee;
 }
