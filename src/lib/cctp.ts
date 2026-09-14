@@ -12,6 +12,9 @@ export const IRIS_API_BASE = USE_MAINNET
   ? "https://iris-api.circle.com"
   : "https://iris-api-sandbox.circle.com";
 
+/** Browsers go through the same-origin relay in `app/api/iris`; the server calls Circle directly. */
+const IRIS_CLIENT_BASE = typeof window === "undefined" ? IRIS_API_BASE : "/api/iris";
+
 /** Same address on every EVM chain Circle lists, Arc included. */
 export const TOKEN_MESSENGER_V2 = (
   USE_MAINNET
@@ -87,7 +90,7 @@ export type BurnFee = { finalityThreshold: number; minimumFee: number };
 
 /** Fee schedule in basis points per finality threshold, from Circle's API. */
 export async function fetchBurnFees(sourceDomain: number): Promise<BurnFee[]> {
-  const res = await fetch(`${IRIS_API_BASE}/v2/burn/USDC/fees/${sourceDomain}/${ARC_DOMAIN}`);
+  const res = await fetch(`${IRIS_CLIENT_BASE}/v2/burn/USDC/fees/${sourceDomain}/${ARC_DOMAIN}`);
   if (!res.ok) throw new Error(await irisError(res));
   return (await res.json()) as BurnFee[];
 }
@@ -115,7 +118,7 @@ export async function fetchAttestation(
   txHash: Hex,
 ): Promise<IrisMessage | undefined> {
   const res = await fetch(
-    `${IRIS_API_BASE}/v2/messages/${sourceDomain}?transactionHash=${txHash}`,
+    `${IRIS_CLIENT_BASE}/v2/messages/${sourceDomain}?transactionHash=${txHash}`,
   );
   if (res.status === 404) return undefined;
   if (!res.ok) throw new Error(await irisError(res));

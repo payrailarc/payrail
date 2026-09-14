@@ -207,10 +207,19 @@ export function CctpPanel() {
       try {
         const message = await fetchAttestation(burn.sourceDomain, burn.txHash);
         if (cancelled) return;
-        if (isAttested(message)) setAttested(message);
-        else setPolls((count) => count + 1);
+        if (isAttested(message)) {
+          setAttested(message);
+          setFailure(undefined);
+        } else setPolls((count) => count + 1);
       } catch (error) {
-        if (!cancelled) setFailure(error instanceof Error ? error.message : String(error));
+        if (!cancelled) {
+          const text = error instanceof Error ? error.message : String(error);
+          setFailure(
+            text === "Failed to fetch"
+              ? "Could not reach Circle's attestation API; retrying automatically."
+              : text,
+          );
+        }
       }
     };
     void tick();
