@@ -62,7 +62,7 @@ export const SOURCE_CHAINS: readonly SourceChain[] = USE_MAINNET
       {
         chain: base,
         domain: 6,
-        usdc: "0x833589fCD6eDb6E08f4C7C32D4f71b54bdA02913" as Address,
+        usdc: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as Address,
         gasFee: 10_000n,
       },
       {
