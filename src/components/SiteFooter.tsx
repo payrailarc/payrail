@@ -1,7 +1,15 @@
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { GitHubIcon, XIcon } from "@/components/icons";
-import { GITHUB_HANDLE, GITHUB_URL, X_HANDLE, X_URL } from "@/lib/site";
+import {
+  GITHUB_HANDLE,
+  GITHUB_URL,
+  TOKEN_ADDRESS,
+  TOKEN_MINARA_URL,
+  TOKEN_SYMBOL,
+  X_HANDLE,
+  X_URL,
+} from "@/lib/site";
 import { EXPLORER_URL, FAUCET_URL, PAYOUT_DISTRIBUTOR_ADDRESS, activeChain } from "@/lib/chain";
 
 const productLinks = [
@@ -87,6 +95,16 @@ export function SiteFooter() {
             <li>Chain · {activeChain.name}</li>
             <li>Chain id · {activeChain.id}</li>
             <li>Gas token · USDC</li>
+            <li>
+              <a
+                href={TOKEN_MINARA_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="transition hover:text-white"
+              >
+                {TOKEN_SYMBOL} · {TOKEN_ADDRESS.slice(0, 6)}…{TOKEN_ADDRESS.slice(-4)}
+              </a>
+            </li>
           </ul>
         </div>
       </div>

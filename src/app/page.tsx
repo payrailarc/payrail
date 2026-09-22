@@ -2,6 +2,7 @@ import Link from "next/link";
 import { LogoMark } from "@/components/Logo";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import { TokenCard } from "@/components/TokenCard";
 import { FAUCET_URL, USDC_ADDRESS, USE_MAINNET, activeChain } from "@/lib/chain";
 import { ROADMAP } from "@/lib/roadmap";
 
@@ -245,6 +246,10 @@ export default function Home() {
             ))}
           </dl>
         </div>
+      </section>
+
+      <section id="token" className="mx-auto max-w-6xl scroll-mt-20 px-5 pb-16 sm:px-6 sm:pb-24">
+        <TokenCard />
       </section>
 
       <section id="roadmap" className="mx-auto max-w-6xl scroll-mt-20 px-5 pb-16 sm:px-6 sm:pb-24">
