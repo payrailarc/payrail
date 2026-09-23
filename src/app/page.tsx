@@ -221,9 +221,9 @@ export default function Home() {
             <h2 className="mt-3 text-2xl tracking-tight sm:text-3xl">Built on Arc</h2>
             <p className="mt-4 text-sm leading-relaxed text-navy/65">
               payrail runs on <span className="text-navy">{activeChain.name}</span>. Arc is Circle&apos;s
-              layer 1 where USDC is the native gas token. Arc mainnet is not open to the public yet, so
-              the app targets testnet and reads its chain configuration from the environment — the same
-              build points at mainnet once an RPC endpoint is available.
+              layer 1 where USDC is the native gas token. payrail is live on Arc mainnet; the app reads its
+              chain configuration from the environment, so the same build also runs against testnet
+              for dry runs before moving real funds.
             </p>
             <Link
               href="/whitepaper"

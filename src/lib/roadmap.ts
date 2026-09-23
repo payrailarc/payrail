@@ -46,10 +46,11 @@ export const ROADMAP: readonly RoadmapPhase[] = [
   {
     phase: "v1.0",
     title: "Production",
-    status: "Planned",
+    status: "In progress",
     items: [
+      "Mainnet distributor deployed on Arc (chain 5042)",
       "External audit of the distributor contract",
-      "Mainnet distributor deployment and treasury handover",
+      "Treasury handover to a multisig",
       "Optional privacy on payout amounts",
       "Gateway funding on mainnet once Circle lists Arc",
     ],

@@ -54,7 +54,7 @@ The build targets one network at a time, selected by `NEXT_PUBLIC_ARC_NETWORK`.
 | USDC (ERC-20) | `0x3600…0000`, 6 decimals | `0x3600…0000`, 6 decimals |
 | EURC | `0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a` | — |
 | Faucet | https://faucet.circle.com | — |
-| `PayoutDistributor` | [`0xaddb32a0…21abcd3`](https://testnet.arcscan.app/address/0xaddb32a0bc4b0ca36b56927bda0b0638a21abcd3) | not deployed yet |
+| `PayoutDistributor` | [`0xaddb32a0…21abcd3`](https://testnet.arcscan.app/address/0xaddb32a0bc4b0ca36b56927bda0b0638a21abcd3) | [`0x5c3dace0…d114be6`](https://arc.exploreme.pro/address/0x5c3dace0e3555775f2a1b5396280805b9d114be6) |
 
 USDC is the native gas token. The native view has 18 decimals and is used only for gas and
 `msg.value`; the ERC-20 view has 6 decimals and is used for every balance, transfer and display in
