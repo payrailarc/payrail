@@ -81,11 +81,13 @@ export function SiteFooter() {
                 PayoutDistributor
               </a>
             </li>
-            <li>
-              <a href={FAUCET_URL} target="_blank" rel="noreferrer" className="transition hover:text-white">
-                Circle faucet
-              </a>
-            </li>
+            {FAUCET_URL && (
+              <li>
+                <a href={FAUCET_URL} target="_blank" rel="noreferrer" className="transition hover:text-white">
+                  Circle faucet
+                </a>
+              </li>
+            )}
           </ul>
         </div>
 

@@ -3,7 +3,7 @@ import type { Address, Chain } from "viem";
 
 /**
  * `viem`'s `arc` definition ships no RPC or explorer, so mainnet is described here.
- * The app stays on Arc Testnet unless NEXT_PUBLIC_ARC_NETWORK is set to `mainnet`.
+ * The app targets Arc mainnet unless NEXT_PUBLIC_ARC_NETWORK is set to `testnet`.
  */
 export const ARC_MAINNET_RPC =
   process.env.NEXT_PUBLIC_ARC_MAINNET_RPC_URL || "https://rpc.arc-scan.org";
@@ -16,7 +16,7 @@ export const arcMainnet: Chain = {
   },
 };
 
-export const USE_MAINNET = process.env.NEXT_PUBLIC_ARC_NETWORK === "mainnet";
+export const USE_MAINNET = process.env.NEXT_PUBLIC_ARC_NETWORK !== "testnet";
 
 export const activeChain: Chain = USE_MAINNET ? arcMainnet : arcTestnet;
 
@@ -43,8 +43,9 @@ export const PAYOUT_DISTRIBUTOR_ADDRESS = ((USE_MAINNET
   ? process.env.NEXT_PUBLIC_PAYOUT_DISTRIBUTOR_MAINNET
   : process.env.NEXT_PUBLIC_PAYOUT_DISTRIBUTOR) ?? "") as Address | "";
 
-export const EXPLORER_URL = activeChain.blockExplorers?.default.url ?? "https://testnet.arcscan.app";
-export const FAUCET_URL = "https://faucet.circle.com";
+export const EXPLORER_URL = activeChain.blockExplorers?.default.url ?? "https://arc.exploreme.pro";
+/** Circle's faucet only serves testnet, so mainnet builds hide it. */
+export const FAUCET_URL = USE_MAINNET ? "" : "https://faucet.circle.com";
 
 export function explorerTx(hash: string) {
   return `${EXPLORER_URL}/tx/${hash}`;

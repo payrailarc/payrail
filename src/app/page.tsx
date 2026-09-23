@@ -102,14 +102,23 @@ export default function Home() {
                 Read the docs
               </Link>
             </div>
-            <a
-              href={FAUCET_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-4 inline-block text-sm text-navy/55 underline-offset-4 transition hover:text-navy hover:underline"
-            >
-              Get testnet USDC from the Circle faucet →
-            </a>
+            {FAUCET_URL ? (
+              <a
+                href={FAUCET_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-4 inline-block text-sm text-navy/55 underline-offset-4 transition hover:text-navy hover:underline"
+              >
+                Get testnet USDC from the Circle faucet →
+              </a>
+            ) : (
+              <Link
+                href="/bridge"
+                className="mt-4 inline-block text-sm text-navy/55 underline-offset-4 transition hover:text-navy hover:underline"
+              >
+                Bridge USDC to Arc with Circle CCTP →
+              </Link>
+            )}
             <dl className="mt-10 grid max-w-lg grid-cols-3 gap-4 text-sm sm:mt-12 sm:gap-6">
               {[
                 ["< 1s", "finality"],
@@ -221,9 +230,9 @@ export default function Home() {
             <h2 className="mt-3 text-2xl tracking-tight sm:text-3xl">Built on Arc</h2>
             <p className="mt-4 text-sm leading-relaxed text-navy/65">
               payrail runs on <span className="text-navy">{activeChain.name}</span>. Arc is Circle&apos;s
-              layer 1 where USDC is the native gas token. payrail is live on Arc mainnet; the app reads its
-              chain configuration from the environment, so the same build also runs against testnet
-              for dry runs before moving real funds.
+              layer 1 where USDC is the native gas token. payrail is live on Arc mainnet with the
+              PayoutDistributor deployed on-chain; a testnet build is available for dry runs before
+              moving real funds.
             </p>
             <Link
               href="/whitepaper"

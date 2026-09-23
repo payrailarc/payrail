@@ -73,11 +73,18 @@ export default function DocsPage() {
         <Section id="quickstart" title="Quickstart">
           <ol className="ml-4 list-decimal space-y-2">
             <li>
-              Get testnet USDC from the{" "}
-              <a href={FAUCET_URL} target="_blank" rel="noreferrer" className="text-arcblue underline">
-                Circle faucet
-              </a>{" "}
-              — it also funds gas, because USDC is the gas token on Arc.
+              Get USDC on Arc — <Link href="/bridge" className="text-arcblue underline">bridge</Link> it
+              in with Circle CCTP from Base, Ethereum, Arbitrum, OP or Polygon
+              {FAUCET_URL && (
+                <>
+                  {" "}(or, on testnet, use the{" "}
+                  <a href={FAUCET_URL} target="_blank" rel="noreferrer" className="text-arcblue underline">
+                    Circle faucet
+                  </a>
+                  )
+                </>
+              )}
+              . It also funds gas, because USDC is the gas token on Arc.
             </li>
             <li>
               Open the <Link href="/app" className="text-arcblue underline">payout console</Link> and
@@ -259,10 +266,10 @@ event PayoutSent(bytes32 indexed batchId, address indexed recipient, uint256 amo
 forge test
 PAYOUT_ADMIN=0xYourSafe PAYOUT_TREASURY=0xYourTreasury \\
   forge script script/Deploy.s.sol:Deploy \\
-  --rpc-url https://rpc.testnet.arc.network --broadcast --account deployer
+  --rpc-url https://rpc.arc-scan.org --broadcast --account deployer
 
-# web app
-NEXT_PUBLIC_PAYOUT_DISTRIBUTOR=0xYourDistributor npm run build`}</Code>
+# web app (mainnet is the default; set NEXT_PUBLIC_ARC_NETWORK=testnet for a testnet build)
+NEXT_PUBLIC_PAYOUT_DISTRIBUTOR_MAINNET=0xYourDistributor npm run build`}</Code>
           <p>
             Use a Foundry keystore (<code className="font-mono text-navy">--account</code>) rather than
             a plaintext private key, and grant operator and approver roles to different signers.

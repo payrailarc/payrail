@@ -29,7 +29,7 @@ export default function WhitepaperPage() {
       <SiteHeader />
       <DocShell
         title="Whitepaper"
-        subtitle="A controlled, auditable batch settlement rail for stablecoin payouts on Arc — v0.1, testnet."
+        subtitle="A controlled, auditable batch settlement rail for stablecoin payouts on Arc — v1.0, mainnet."
         sections={sections}
       >
         <Section id="abstract" title="Abstract">
@@ -181,10 +181,10 @@ executeBatch(batchId, recipients[], amounts[])
 
         <Section id="limits" title="6. Limitations">
           <ul className="ml-4 list-disc space-y-1">
-            <li>{activeChain.name} only: Arc mainnet is not publicly available, so the app is testnet-first and reads its chain from configuration.</li>
+            <li>{activeChain.name} only: the app reads its chain from configuration; the testnet build is for dry runs, not a separate product.</li>
             <li>Amounts are public on-chain; only references stay off-chain.</li>
             <li>No scheduling, no fiat on/off ramp, no tax forms — payrail is the settlement leg.</li>
-            <li>Not audited. Treat v0.1 as a testnet reference implementation.</li>
+            <li>Not yet externally audited. Start with small batches and review the contract before moving large amounts.</li>
           </ul>
         </Section>
 

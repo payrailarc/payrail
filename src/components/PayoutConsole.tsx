@@ -568,11 +568,15 @@ export function PayoutConsole() {
                 Connect a wallet on {activeChain.name} to run a batch. Need funds?{" "}
                 <Link href="/bridge" className="text-arcblue underline">
                   Bridge USDC
-                </Link>{" "}
-                or use the{" "}
-                <a href={FAUCET_URL} target="_blank" rel="noreferrer" className="text-arcblue underline">
-                  Circle faucet
-                </a>
+                </Link>
+                {FAUCET_URL && (
+                  <>
+                    {" "}or use the{" "}
+                    <a href={FAUCET_URL} target="_blank" rel="noreferrer" className="text-arcblue underline">
+                      Circle faucet
+                    </a>
+                  </>
+                )}
                 .
               </p>
             ) : (

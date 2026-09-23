@@ -44,7 +44,8 @@ contracts/script/      Deploy.s.sol
 
 ## Networks
 
-The build targets one network at a time, selected by `NEXT_PUBLIC_ARC_NETWORK`.
+The build targets one network at a time, selected by `NEXT_PUBLIC_ARC_NETWORK`. Mainnet is the
+default; https://pay-rail.com runs against Arc mainnet.
 
 | | Arc Testnet | Arc Mainnet |
 | --- | --- | --- |
@@ -92,7 +93,7 @@ npm run typecheck && npm run lint && npm run build
 
 | Variable | Purpose |
 | --- | --- |
-| `NEXT_PUBLIC_ARC_NETWORK` | `testnet` (default) or `mainnet` |
+| `NEXT_PUBLIC_ARC_NETWORK` | `mainnet` (default) or `testnet` |
 | `NEXT_PUBLIC_ARC_MAINNET_RPC_URL` | Override the mainnet RPC |
 | `NEXT_PUBLIC_PAYOUT_DISTRIBUTOR` | Distributor address used when the network is `testnet` |
 | `NEXT_PUBLIC_PAYOUT_DISTRIBUTOR_MAINNET` | Distributor address used when the network is `mainnet` |
