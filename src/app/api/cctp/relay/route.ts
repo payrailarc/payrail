@@ -24,8 +24,9 @@ type RelayBody = { sourceDomain?: number; txHash?: string };
  * destination wallet that has no USDC for gas yet. Re-requests the attestation when it has expired.
  */
 export async function POST(request: NextRequest) {
-  const key = process.env.CCTP_RELAYER_KEY;
-  if (!key || !/^0x[0-9a-fA-F]{64}$/.test(key)) {
+  const raw = (process.env.CCTP_RELAYER_KEY ?? "").trim();
+  const key = raw.startsWith("0x") ? raw : `0x${raw}`;
+  if (!/^0x[0-9a-fA-F]{64}$/.test(key)) {
     return NextResponse.json({ error: "relayer not configured" }, { status: 503 });
   }
   const body = (await request.json().catch(() => ({}))) as RelayBody;
