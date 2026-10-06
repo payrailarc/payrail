@@ -4,9 +4,6 @@ import { GitHubIcon, XIcon } from "@/components/icons";
 import {
   GITHUB_HANDLE,
   GITHUB_URL,
-  TOKEN_ADDRESS,
-  TOKEN_MINARA_URL,
-  TOKEN_SYMBOL,
   X_HANDLE,
   X_URL,
 } from "@/lib/site";
@@ -97,16 +94,6 @@ export function SiteFooter() {
             <li>Chain · {activeChain.name}</li>
             <li>Chain id · {activeChain.id}</li>
             <li>Gas token · USDC</li>
-            <li>
-              <a
-                href={TOKEN_MINARA_URL}
-                target="_blank"
-                rel="noreferrer"
-                className="transition hover:text-white"
-              >
-                {TOKEN_SYMBOL} · {TOKEN_ADDRESS.slice(0, 6)}…{TOKEN_ADDRESS.slice(-4)}
-              </a>
-            </li>
           </ul>
         </div>
       </div>
