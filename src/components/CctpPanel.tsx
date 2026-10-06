@@ -25,9 +25,12 @@ import {
   depositForBurnArgs,
   fetchAttestation,
   fetchBurnFees,
+  isAttestationExpired,
   isAttested,
   maxFeeFor,
+  messageNonce,
   messageTransmitterV2Abi,
+  requestReattestation,
   tokenMessengerV2Abi,
 } from "@/lib/cctp";
 import type { BurnFee, IrisMessage, Speed } from "@/lib/cctp";
@@ -96,6 +99,7 @@ export function CctpPanel() {
   const [burn, setBurn] = useState<SavedBurn>();
   const [resumeHash, setResumeHash] = useState("");
   const [attested, setAttested] = useState<IrisMessage>();
+  const [staleAttestation, setStaleAttestation] = useState<Hex>();
   const [polls, setPolls] = useState(0);
 
   const source =
@@ -164,12 +168,23 @@ export function CctpPanel() {
   useEffect(() => {
     if (!writeError) return;
     setBusy(undefined);
+    const text = writeError.message;
+    if (attested && isAttestationExpired(text)) {
+      setFailure("Attestation expired; asking Circle to re-sign it. Mint unlocks again shortly.");
+      if (attested.attestation !== "PENDING") setStaleAttestation(attested.attestation);
+      setAttested(undefined);
+      setPolls(0);
+      requestReattestation(messageNonce(attested.message)).catch((error: unknown) =>
+        setFailure(error instanceof Error ? error.message : String(error)),
+      );
+      return;
+    }
     setFailure(
       "shortMessage" in writeError && typeof writeError.shortMessage === "string"
         ? writeError.shortMessage
-        : writeError.message,
+        : text,
     );
-  }, [writeError]);
+  }, [writeError, attested]);
 
   useEffect(() => {
     setFees(undefined);
@@ -207,8 +222,9 @@ export function CctpPanel() {
       try {
         const message = await fetchAttestation(burn.sourceDomain, burn.txHash);
         if (cancelled) return;
-        if (isAttested(message)) {
+        if (isAttested(message) && message.attestation !== staleAttestation) {
           setAttested(message);
+          setStaleAttestation(undefined);
           setFailure(undefined);
         } else setPolls((count) => count + 1);
       } catch (error) {
@@ -228,7 +244,7 @@ export function CctpPanel() {
       cancelled = true;
       window.clearInterval(timer);
     };
-  }, [burn, attested]);
+  }, [burn, attested, staleAttestation]);
 
   const onSourceChain = chainId === source.chain.id;
   const onArc = chainId === activeChain.id;

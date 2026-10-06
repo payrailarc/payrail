@@ -132,6 +132,24 @@ export async function fetchAttestation(
   return json.messages?.[0];
 }
 
+/** Bytes 12..44 of a CCTP V2 message header. */
+export function messageNonce(message: Hex): Hex {
+  return `0x${message.slice(2 + 24, 2 + 24 + 64)}`;
+}
+
+/**
+ * Attestations expire after a while on the destination transmitter ("Message expired and must be
+ * re-signed"); Circle re-signs on request and the next poll returns the fresh one.
+ */
+export async function requestReattestation(nonce: Hex): Promise<void> {
+  const res = await fetch(`${IRIS_CLIENT_BASE}/v2/reattest/${nonce}`, { method: "POST" });
+  if (!res.ok) throw new Error(await irisError(res));
+}
+
+export function isAttestationExpired(error: string) {
+  return /expired and must be re-signed/i.test(error);
+}
+
 export function isAttested(
   message: IrisMessage | undefined,
 ): message is IrisMessage & { attestation: Hex } {

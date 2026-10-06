@@ -52,7 +52,7 @@ export const ROADMAP: readonly RoadmapPhase[] = [
       "External audit of the distributor contract",
       "Treasury handover to a multisig",
       "Optional privacy on payout amounts",
-      "Gateway funding on mainnet once Circle lists Arc",
+      "Gateway funding on mainnet (Circle lists Arc, domain 26)",
     ],
   },
 ];

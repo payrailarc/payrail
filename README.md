@@ -73,9 +73,9 @@ the bps Circle quotes at `/v2/burn/USDC/fees/{src}/26`; standard (2000) is free 
 finality. A pending burn is kept in `localStorage` and can be resumed from its tx hash.
 
 **Gateway**: approve the Gateway wallet, deposit, sign an EIP-712 burn intent, then
-`gatewayMint(bytes,bytes)` on Arc. Arc is listed on the testnet Gateway API; on mainnet
-`https://gateway-api.circle.com/v1/info` does **not** list it yet, so that tab detects it at runtime
-and disables signing instead of taking a deposit that cannot be attested.
+`gatewayMint(bytes,bytes)` on Arc. Arc (domain 26) is listed on both the mainnet and testnet Gateway
+APIs; the tab still reads `/v1/info` at runtime and disables signing if the domain ever disappears,
+rather than taking a deposit that cannot be attested.
 
 ## Running locally
 

@@ -127,8 +127,9 @@ export default function DocsPage() {
           </p>
           <p>
             Gateway is the second route: deposit once into your own Gateway balance, then sign an
-            EIP-712 burn intent per transfer. Arc is listed on Circle&apos;s testnet Gateway API but
-            not on mainnet yet, so the Gateway tab detects that and disables signing on mainnet.
+            EIP-712 burn intent per transfer. Arc (domain 26) is listed on Circle&apos;s mainnet and
+            testnet Gateway APIs; the tab checks the live list and only disables signing if Circle
+            ever drops it.
           </p>
         </Section>
 

@@ -16,11 +16,11 @@ const ROUTES: readonly { id: Route; title: string; body: string }[] = [
   {
     id: "gateway",
     title: "Gateway",
-    body: "Deposit once, transfer with a signature. Arc is listed on testnet only.",
+    body: "Deposit once, transfer with a signature. Live on mainnet and testnet.",
   },
 ];
 
-/** Gateway has no Arc mainnet domain yet, so mainnet opens on CCTP. */
+/** CCTP needs no upfront deposit, so mainnet opens on it. */
 export function BridgeRoutes() {
   const [route, setRoute] = useState<Route>(USE_MAINNET ? "cctp" : "gateway");
 
