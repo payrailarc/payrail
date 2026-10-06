@@ -27,9 +27,11 @@ import {
   fetchBurnFees,
   isAttestationExpired,
   isAttested,
+  isNonceUsed,
   maxFeeFor,
   messageNonce,
   messageTransmitterV2Abi,
+  relayMint,
   requestReattestation,
   tokenMessengerV2Abi,
 } from "@/lib/cctp";
@@ -101,6 +103,8 @@ export function CctpPanel() {
   const [attested, setAttested] = useState<IrisMessage>();
   const [staleAttestation, setStaleAttestation] = useState<Hex>();
   const [polls, setPolls] = useState(0);
+  const [relay, setRelay] = useState<"idle" | "working" | "unavailable">("idle");
+  const [minted, setMinted] = useState<{ hash?: Hex; via: "relayer" | "wallet" }>();
 
   const source =
     CCTP_SOURCE_CHAINS.find((entry) => entry.chain.id === sourceId) ?? CCTP_SOURCE_CHAINS[0];
@@ -169,6 +173,10 @@ export function CctpPanel() {
     if (!writeError) return;
     setBusy(undefined);
     const text = writeError.message;
+    if (busy === "mint" && isNonceUsed(text)) {
+      finish({ via: "wallet" });
+      return;
+    }
     if (attested && isAttestationExpired(text)) {
       setFailure("Attestation expired; asking Circle to re-sign it. Mint unlocks again shortly.");
       if (attested.attestation !== "PENDING") setStaleAttestation(attested.attestation);
@@ -184,7 +192,7 @@ export function CctpPanel() {
         ? writeError.shortMessage
         : text,
     );
-  }, [writeError, attested]);
+  }, [writeError, attested, busy]);
 
   useEffect(() => {
     setFees(undefined);
@@ -205,15 +213,55 @@ export function CctpPanel() {
       setBurn(next);
       saveBurn(next);
       setAttested(undefined);
+      setMinted(undefined);
+      setRelay("idle");
       setPolls(0);
     }
-    if (busy === "mint") {
-      setBurn(undefined);
-      saveBurn(undefined);
-      setAttested(undefined);
-    }
+    if (busy === "mint") finish({ hash: txHash, via: "wallet" });
     setBusy(undefined);
   }, [isConfirmed, txHash, busy, source.domain, refetchAllowance, refetchWalletBalance]);
+
+  useEffect(() => {
+    if (!burn || !attested || relay !== "idle") return;
+    let cancelled = false;
+    setRelay("working");
+    relayMint(burn.sourceDomain, burn.txHash)
+      .then((result) => {
+        if (cancelled) return;
+        if ("error" in result) {
+          setRelay("unavailable");
+          if (result.error !== "relayer unavailable") setFailure(result.error);
+          return;
+        }
+        if (result.status === "minted") {
+          finish({ hash: result.hash, via: "relayer" });
+          return;
+        }
+        if (result.status === "reattesting" && attested.attestation !== "PENDING") {
+          setStaleAttestation(attested.attestation);
+        }
+        setAttested(undefined);
+        setPolls(0);
+        setRelay("idle");
+      })
+      .catch(() => {
+        if (!cancelled) setRelay("unavailable");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [burn, attested, relay]);
+
+  function finish(result: { hash?: Hex; via: "relayer" | "wallet" }) {
+    setMinted(result);
+    setBurn(undefined);
+    saveBurn(undefined);
+    setAttested(undefined);
+    setStaleAttestation(undefined);
+    setRelay("idle");
+    setBusy(undefined);
+    setFailure(undefined);
+  }
 
   useEffect(() => {
     if (!burn || attested) return;
@@ -310,6 +358,9 @@ export function CctpPanel() {
     }
     setFailure(undefined);
     setAttested(undefined);
+    setStaleAttestation(undefined);
+    setMinted(undefined);
+    setRelay("idle");
     setPolls(0);
     const next = { txHash: hash as Hex, sourceDomain: source.domain };
     setBurn(next);
@@ -320,6 +371,8 @@ export function CctpPanel() {
     setBurn(undefined);
     saveBurn(undefined);
     setAttested(undefined);
+    setStaleAttestation(undefined);
+    setRelay("idle");
     setPolls(0);
   }
 
@@ -545,12 +598,41 @@ export function CctpPanel() {
                     </div>
                   )}
 
+                  {step.id === "mint" && relay === "working" && (
+                    <p className="mb-2 rounded-xl bg-arcblue/10 p-3 text-xs text-navy">
+                      Attestation received — payrail&apos;s relayer is submitting the mint on{" "}
+                      {activeChain.name} for you (no gas needed on your side).
+                    </p>
+                  )}
+                  {step.id === "mint" && minted && (
+                    <p className="mb-2 rounded-xl bg-emerald-50 p-3 text-xs text-emerald-800">
+                      Minted on {activeChain.name}
+                      {minted.via === "relayer" ? " by the relayer" : ""}
+                      {minted.hash ? (
+                        <>
+                          {" "}·{" "}
+                          <a href={explorerTx(minted.hash)} target="_blank" rel="noreferrer" className="underline">
+                            {shortenAddress(minted.hash, 6)}
+                          </a>
+                        </>
+                      ) : null}
+                      . USDC is in the recipient wallet.
+                    </p>
+                  )}
+                  {step.id === "mint" && relay === "unavailable" && attested && (
+                    <p className="mb-2 text-xs text-navy/60">
+                      Relayer unavailable — mint from your wallet (needs a little USDC on{" "}
+                      {activeChain.name} for gas).
+                    </p>
+                  )}
                   {step.id === "mint" &&
                     (onArc ? (
                       <button
                         type="button"
                         onClick={mint}
-                        disabled={!attested || (busy === "mint" && Boolean(busyLabel))}
+                        disabled={
+                          !attested || relay === "working" || (busy === "mint" && Boolean(busyLabel))
+                        }
                         className="w-full rounded-xl bg-navy py-2.5 text-sm font-medium text-white transition hover:bg-navy-soft disabled:opacity-50"
                       >
                         {busy === "mint" && busyLabel ? busyLabel : `Mint on ${activeChain.name}`}
@@ -565,7 +647,7 @@ export function CctpPanel() {
                         Switch to {activeChain.name}
                       </button>
                     ))}
-                  {step.id === "mint" && !attested && (
+                  {step.id === "mint" && !attested && !minted && (
                     <p className="mt-2 text-xs text-navy/55">Waiting for the attestation.</p>
                   )}
                 </div>

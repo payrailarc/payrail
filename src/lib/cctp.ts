@@ -64,6 +64,13 @@ export const messageTransmitterV2Abi = [
     ],
     outputs: [{ name: "success", type: "bool" }],
   },
+  {
+    type: "function",
+    name: "usedNonces",
+    stateMutability: "view",
+    inputs: [{ name: "nonce", type: "bytes32" }],
+    outputs: [{ name: "", type: "uint256" }],
+  },
 ] as const;
 
 const ZERO_BYTES32 = `0x${"0".repeat(64)}` as Hex;
@@ -148,6 +155,26 @@ export async function requestReattestation(nonce: Hex): Promise<void> {
 
 export function isAttestationExpired(error: string) {
   return /expired and must be re-signed/i.test(error);
+}
+
+export function isNonceUsed(error: string) {
+  return /nonce already used/i.test(error);
+}
+
+export type RelayResult =
+  | { status: "pending" | "reattesting" }
+  | { status: "minted"; hash?: Hex }
+  | { error: string };
+
+/** Ask payrail's server relayer to submit `receiveMessage` on Arc and pay the gas. */
+export async function relayMint(sourceDomain: number, txHash: Hex): Promise<RelayResult> {
+  const res = await fetch("/api/cctp/relay", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ sourceDomain, txHash }),
+  });
+  if (res.status === 503) return { error: "relayer unavailable" };
+  return (await res.json()) as RelayResult;
 }
 
 export function isAttested(
